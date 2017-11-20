@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- import page level css -->
+<link rel="import" href="asset2-view-styles.html">
+
+<link rel="import" href="../../bower_components/px-card/px-card.html">
+<link rel="import" href="../../bower_components/px-view-header/px-view-header.html">
+<link rel="import" href="../../bower_components/px-dropdown/px-dropdown.html"/>
+<link rel="import" href="../../bower_components/px-alert-label/px-alert-label.html"/>
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html"/>
+
+<style type="text/css">
+  .btnMrgn{
+           margin-left: 20px;
+  }
+  span.px-data-table-cell{
+    white-space: initial;
+  }
+</style>
+
+<dom-module id="asset2-view">
+  <template>
+    
+    <style include="asset2-view-styles"></style>
+    <px-card header-text="Assets2" icon="fa-sitemap">
+    
+    <form >
+      <fieldset class="form-field" style="max-width:100%;">
+
+       <div class="layout layout--huge layout--center">
+
+          <div class="layout__item u-1/1" style="margin-top: 15px;">
+          <h2>Asset2 Info comes here.</h2>
+         </div>
+
+
+
+      </div>
+      </fieldset>
+    </form>
+    </px-card>
+  </template>
+  <script>
+    Polymer({
+      is: 'asset2-view',
+      properties: {},
+      ready: function() {
+        console.log('asset2-view ready()')
+      }
+    });
+  </script>
+</dom-module>
+
+
+
+

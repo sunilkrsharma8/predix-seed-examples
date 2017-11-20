@@ -1,0 +1,155 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- import page level css -->
+<link rel="import" href="blankpage-view-styles.html">
+
+<link rel="import" href="../../bower_components/px-card/px-card.html">
+<link rel="import" href="../../bower_components/px-view-header/px-view-header.html">
+<link rel="import" href="../../bower_components/px-dropdown/px-dropdown.html"/>
+<link rel="import" href="../../bower_components/px-alert-label/px-alert-label.html"/>
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html"/>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<style type="text/css">
+  .btnMrgn{
+           margin-left: 20px;
+  }
+  span.px-data-table-cell{
+    white-space: initial;
+  }
+</style>
+
+<dom-module id="blankpage-view">
+  <template>
+    
+    <style include="blankpage-view-styles"></style>
+
+    <!--<px-view-header title="Assets" style="display: block; margin-bottom: 6px;"></px-view-header>-->
+    <px-card header-text="Assets" icon="fa-sitemap">
+    
+    <form >
+      <fieldset class="form-field" style="max-width:100%;">
+
+       <div class="layout layout--huge layout--center">
+
+          
+        
+           <div class="layout__item u-1/2">
+               <px-dropdown
+                items='[{"key":"1","val":"Asset1"},{"key":"2","val":"Asset2"},{"key":"3","val":"Asset3"},{"key":"4","val":"Asset4"},{"key":"5","val":"Asset5","disabled":true}]'
+                sort-mode="key"
+                button-style="default"
+                display-value="Assets"
+                disable-clear>
+              </px-dropdown>
+          </div>
+           <div class="layout__item u-1/2"> 
+             <button class="btn" data-toggle="modal" data-target="#myAssetItemModal">Asset Item</button>
+          </div>
+       
+          <div class="layout__item u-1/2" style="margin-top: 15px;">
+             <px-alert-label
+                label="Asset"
+                type="information">
+            </px-alert-label>
+          </div>
+          <div class="layout__item u-1/2" style="margin-top: 15px;"> 
+             <px-dropdown
+                items='[{"key":"1","val":"Item1"},{"key":"2","val":"Item2"},{"key":"3","val":"Item3"},{"key":"4","val":"Item4"},{"key":"5","val":"Item5","disabled":true}]'
+                sort-mode="key"
+                button-style="default"
+                display-value="Items"
+                disable-clear>
+              </px-dropdown>
+          </div>
+
+
+          <div class="layout__item u-1/1" style="margin-top: 15px;">
+           <px-data-table table-data='[{
+                                     "first":"Valentine",
+                                     "last":"Meyer",
+                                     "news":"Police in north and south Goa districts have been barred from using cellphones on duty. They will be penalised if caught doing so."
+                                      },{
+                                     "first":"Silva",
+                                     "last":"Alexander",
+                                     "news":"Local officials told Christians in Chinas Yugan county that Jesus Christ wouldn t drag them out of poverty or cure their illnesses, but Chinese Communist Party will."
+                                     },{
+                                    "first":"Hopkins",
+                                    "last":"Wong",
+                                    "news":"Chief Minister Pinarayi Vijayan has said Chandy s party, the Nationalist Congress Party (NCP), has asked for more time to decide on the issue."
+                                    },{
+                                    "first":"Jane",
+                                    "last":"Bartlett",
+                                    "news":"LG disrupting an elected government by encouraging officers not to show files to Ministers?"
+                                  }]'>
+                </px-data-table> 
+          </div>
+
+
+
+      </div>
+      </fieldset>
+    </form>
+    </px-card>
+
+
+
+<div id="myAssetItemModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">ASSET  DETAILS</h4>
+      </div>
+      <div class="modal-body">
+        
+
+
+<div class="layout__item u-1/1" style="margin-top: 15px;">
+           <px-data-table hide-pagination-control table-data='[{
+                                     "Asset 1":"Valentine",
+                                     "Asset 2":"Meyer",
+                                     "Desc":"Have been barred from using cellphones on duty. They will be penalised if caught doing so."
+                                      },{
+                                     "Asset 1":"Silva",
+                                     "Asset 2":"Alexander",
+                                     "Desc":"Jesus Christ wouldn t drag them out of poverty or cure their illnesses, but Chinese Communist Party will."
+                                     },{
+                                    "Asset 1":"Hopkins",
+                                    "Asset 2":"Wong",
+                                    "Desc":"Nationalist Congress Party (NCP), has asked for more time to decide on the issue."
+                                    }]'>
+                </px-data-table> 
+          </div>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: 'blankpage-view',
+      properties: {},
+      ready: function() {
+        console.log('blankpage-view ready()')
+      }
+    });
+  </script>
+</dom-module>
+
+
+
+

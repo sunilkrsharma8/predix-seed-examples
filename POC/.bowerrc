@@ -1,0 +1,7 @@
+{
+  "directory": "public/bower_components",
+   "registry": "https://registry.bower.io", 
+  "proxy":"http://ssharm22:Soniya%403@arlproxy1.igate.com:8080/",
+  "https-proxy":"http://ssharm22:Soniya%403@arlproxy1.igate.com:8080/",
+  "strict-ssl": false
+}

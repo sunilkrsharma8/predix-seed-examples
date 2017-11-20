@@ -1,0 +1,339 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/px-widget-cards/px-fourup.html">
+
+
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-vis/px-polygit-imports-vis.html">
+<link rel="import" href="../../bower_components/px-vis-pie-chart/px-vis-pie-chart.html">
+<link rel="import" href="../../bower_components/px-simple-horizontal-bar-chart/px-simple-horizontal-bar-chart.html">
+<link rel="import" href="../../bower_components/px-simple-bar-chart/px-simple-bar-chart.html">
+<link rel="import" href="../../bower_components/px-vis-timeseries/px-vis-timeseries.html">
+
+
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<!-- local px-deck -->
+<link rel="import" href="../../elements/px-deck/px-deck-index.html">
+
+<dom-module id="my-dashboard">
+  <template>
+
+    <script type="text/javascript" src="../../bower_components/es6-promise/es6-promise.min.js"></script>
+
+ <style is="custom-style">
+ 
+   paper-icon-button.refresh:hover {
+    
+    color: #525156;
+  }
+  
+       .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        .text-right{
+            text-align : right;
+        }
+
+
+        paper-button.indigo{
+            font-family: "GE Inspira Sans",sans-serif;
+            color: #fff;
+            background-color : #525156;      
+            margin-bottom: 2%;
+            --paper-button-raised-keyboard-focus: {
+                            background-color: #0a89a9 !important;
+                            color: white !important;
+            };
+        }
+
+        paper-button.custom:hover {
+            background-color: #525156;
+        }
+		
+	
+ </style>
+
+	
+	<iron-ajax id="fetchResources" method="GET" url="https://rsm.run.aws-usw02-pr.ice.predix.io/resources/" content-type="application/json" handle-as="json" last-response="{{_resourcesContext}}" on-response="_handleFetchResoucresResponse" on-error="_handleFetchResoucresError" auto="true">
+    </iron-ajax>
+
+    <template is="dom-if" if="{{loading}}">
+        <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+    </template>
+	 <px-card header-text="Dashboard" icon="fa-bar-chart">
+	
+	 <p class="text-right">
+	 <paper-button class="custom indigo" id="refresh" on-tap="refreshData" raised><iron-icon icon="icons:autorenew"></iron-icon>&nbsp;&nbsp;Refresh</paper-button>
+	 </p>
+			
+	<px-fourup id="widget-3">
+	<div class='widget-1'>
+	 <span><center><b>Project</b></center><br>
+	 <px-vis-pie-chart chart-data='[{"percentage":12,"x":20,"y":"RTS"},{"percentage":24,"x":30,"y":"NPI"},{"percentage":26,"x":40,"y":"NTI"},{"percentage":12,"x":10,"y":"REQ"}]' use-percentage="true" inner-radius="0.5" donut="true" width="150" height="200" register-config='{"width":30,"type":"vertical"}' margin='{"top":"10","bottom":"10","left":"10","right":"10"}' series-config='{"mySerie":{"xAxisUnit":"pints","y":"y","x":"x"}}'></px-vis-pie-chart>
+	</span></div>
+	<div class='widget-2'>
+	    <span><center><b>Function wise</b></center><br>
+	 <px-simple-horizontal-bar-chart chart-data='{{_chartdata}}' bar-labels="percentage" width="auto" height="auto" legend-labels='["Software","Hardware","Firmware","Project Engineering"]' colors='["#5da5da","#faa43a","#60bd68","#f17cb0","#b2912f","#b276b2","#decf3f","#f15854","#4d4d4d"]' bar-labels="values"></px-simple-horizontal-bar-chart>
+	</span></div>
+	
+	<div class='widget-3'>
+     <span><center><b>P &amp; L wise</b></center><br>
+	  <px-simple-horizontal-bar-chart chart-data='{{_pnldata}}' bar-labels="percentage" width="auto" height="auto" legend-labels='["PE","BN","MS","IT", "P1"]' colors='["#5da5da","#faa43a","#60bd68","#f17cb0","#b2912f","#b276b2","#decf3f","#f15854","#4d4d4d"]' bar-labels="values"></px-simple-horizontal-bar-chart>
+	</span></div>
+	
+	<div class='widget-4'>
+	
+	
+	</div>
+	</px-fourup>
+	
+</px-card>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'my-dashboard',
+
+      properties: {
+	    _chartdata : {
+		  type : Array
+		},
+		_pnldata : {
+		  type : Array
+		},
+		loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+         }
+       /* _decks: {
+          type: Array,
+          computed: '_computeDecks(_decksResponse)'
+        },
+        _initialBrowserContext: {
+          type: Object,
+          computed: '_computeInitialBrowserContext(_browserContext)'
+        },
+        _nodeUri: {
+          type: String
+        },
+        _decksUrl: {
+          type: String,
+          computed: '_computeDecksUrl(_selectedContextTag, viewServiceBaseUrl)'
+        },
+        _selectedContextTag: {
+          type: String,
+          value: ''
+        },
+        viewServiceBaseUrl: {
+          type: String,
+          value: '/api/view-service/'
+        },
+        _selectedDeckId: {
+          type: String,
+          computed: '_computeSelectedDeckId(_selectedDeck)'
+        },*/
+      },
+
+     /* _computeDecksUrl: function() {
+        if(this._selectedContextTag) {
+          return this.viewServiceBaseUrl + "decks?tag=" + this._selectedContextTag;
+        } else {
+          return this.viewServiceBaseUrl + "decks";
+        }
+      },
+
+      _computeSelectedDeckId: function() {
+        if(this._selectedDeck) {
+          return this._selectedDeck.id;
+        }
+      },
+
+      ready1: function ready() {
+        var _this = this;
+        this.$.contextBrowser.handlers = {
+          // getChildren fires when a node is 'selected'
+          getChildren: function(parent, newIndex) {
+            return _this._getChildren(parent);
+          },
+          // itemOpenHandler fires when a node's 'open' link is clicked
+          itemOpenHandler: function(item) {
+            return _this._itemOpenHandler(item);
+          }
+        };
+        // initialize context data and decks
+        this.$.contextIronAjax.generateRequest();
+        this.$.decksIronAjax.generateRequest();
+      },
+
+      _computeDecks: function() {
+        var decks = [];
+        if (this._decksResponse && this._decksResponse.length > 0) {
+          this._decksResponse.forEach(function(deck) {
+            decks.push({ name: deck.title, id: deck.id });
+          });
+        };
+        return decks;
+      },*/
+
+     /* _computeInitialBrowserContext: function(_browserContext) {
+        if(typeof this._initialBrowserContext !== 'object') {
+          return _browserContext;
+        } else {
+          return this._initialBrowserContext;
+        }
+      },
+
+      // "getChildren" handler for px-context-browser
+      // this function is passed into
+      _getChildren: function(node) {
+        var that = this;
+        return new Promise(function(resolve, reject) {
+          var req = new XMLHttpRequest();
+          req.open('GET', '/api/predix-asset' + node.uri);
+
+          req.onload = function() {
+            if (req.status === 200) {
+              that._nodeUri = node.uri;
+              // that._computeDecks();
+              resolve(JSON.parse(req.response));
+            } else {
+              reject(req.statusText);
+            }
+          };
+
+          req.onError = function() {
+            reject("Network Error");
+          };
+
+          req.send()
+        });
+      },
+
+      _itemOpenHandler: function(item) {
+        this._selectedContextTag = item.id;
+        this.$.decksIronAjax.generateRequest();
+      },*/
+	  
+	  refreshData : function(){
+	   this.loading = true;
+	   this.$.fetchResources.generateRequest();
+	   this.resoucresLoaded();
+	  },
+	  
+	  _handleFetchResoucresResponse : function(){
+	    this.loading = true;
+		this.resoucresLoaded();
+	  },
+	  
+	  _handleFetchResoucresError : function(){
+	    this.loading = false;
+	  },
+	  
+	  resoucresLoaded : function(response){
+		var arr = [];
+		var arrPnl = [];
+		var software = 0;
+		var hardware = 0;
+		var firmware = 0;
+		var project = 0;
+		var pe =0;
+		var bn =0;
+		var ms=0;
+		var it=0;
+		var p1=0;
+		var len = (this._resourcesContext).length;
+	
+		for(var i = 0;i<= len -1; i++){
+		//console.log('this._resourcesContext[i].p_N_L',this._resourcesContext[i].p_N_L);
+		//console.log(this._resourcesContext[i].function);
+		if(this._resourcesContext[i].function === "Software"){
+			software++;
+		 //console.log('software count',software);
+		}else if(this._resourcesContext[i].function === "Hardware"){
+			hardware++;
+		  }else if(this._resourcesContext[i].function === "Firmware"){
+			firmware++; 
+		}else if(this._resourcesContext[i].function === "Project Engineering"){
+			project++;
+		}
+		
+		if(this._resourcesContext[i].p_N_L === "PE"){		 
+			pe++;
+		}else if(this._resourcesContext[i].p_N_L === "BN"){
+			bn++;
+		}else if(this._resourcesContext[i].p_N_L === "MS"){
+			ms++;
+		}else if(this._resourcesContext[i].p_N_L === "IT"){
+			it++;
+		}else if(this._resourcesContext[i].p_N_L === "P1"){
+			p1++;
+		}
+		}
+		software = Math.round((software/len)*100);
+		hardware = Math.round((hardware/len)*100);
+		firmware = Math.round((firmware/len)*100);
+		project = Math.round((project/len)*100);
+		pe = Math.round((pe/len)*100);
+		bn = Math.round((bn/len)*100);
+		ms = Math.round((ms/len)*100);
+		it = Math.round((it/len)*100);
+		p1 = Math.round((p1/len)*100); 
+		//console.log('software count',software);
+		
+		arr.push(software);
+		arr.push(hardware);
+		arr.push(firmware);
+		arr.push(project);
+		
+		arrPnl.push(pe);
+		arrPnl.push(bn);
+		arrPnl.push(ms);
+		arrPnl.push(it);
+		arrPnl.push(p1);
+		if(pe === NaN ){
+			pe =0;
+			bn =0;
+			ms=0;
+			it=0;
+			p1=0;
+			arr.push(pe);
+			arr.push(bn);
+			arr.push(ms);
+			arr.push(it);
+			arr.push(p1);
+		}
+		
+		if(software === NaN){
+			software = 0;
+			hardware = 0;
+			firmware = 0;
+			project = 0;
+			arr.push(software);
+			arr.push(hardware);
+			arr.push(firmware);
+			arr.push(project);
+		}
+		
+		this._chartdata = arr;
+		this._pnldata = arrPnl;
+		
+	    this.loading = false;
+
+	  }
+    });
+  </script>
+  <script type="text/javascript">
+ window.onhashchange=function(){preventBack();}
+ function preventBack(){window.history.forward();}
+</script>
+</dom-module>

@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+ 
+<dom-module id="px-form">
+
+	<style is="custom-style">
+		paper-input#primary {
+			/*--paper-input-container-color: red;
+			--paper-input-container-focus-color: blue;*/
+			/*--paper-input-container-invalid-color: green;*/
+			--paper-input-container-input-color: green;
+		}
+		paper-input#primary::shadow  label.paper-input, paper-input#primary::shadow input{
+			font-weight: 900;
+			font-size: 18px;
+		}
+	</style>
+	<template>
+
+		<!--form is="iron-form" method="get" action="/" id="polymerForm"-->
+			<template is="dom-repeat" items="{{_toArray(formData)}}">
+				<template is="dom-if" if="{{_isObjAction(item)}}">
+				<template is="dom-if" if="{{!_isObj(item.value) && _isObjAction(item)}}">
+					<template is="dom-if" if="{{!isPrimary(item.name)}}">
+						<paper-input name="{{item.name}}" label="{{item.name}}" value="{{item.value}}"></paper-input>
+					</template>
+					<template is="dom-if" if="{{isPrimary(item.name)}}">
+						<paper-input id="primary" name="{{item.name}}" label="{{item.name}}" readonly value="{{item.value}}"></paper-input>
+					</template>
+				</template>
+				</template>
+				<!--template is="dom-if" if="{{_isObj(item.value)}}">
+					<span style="display:block;font-weight:bold; font-size:18px;margin-top:20px;">{{item.name}}</span>
+					<div style="display:block;margin-left:20px;">
+						<template is="dom-repeat" items="{{_toArray(item.value)}}">
+							<paper-input name="{{item.name}}" label="{{item.name}}" value="{{item.value}}"></paper-input>
+						</template>
+					</div>
+				</template-->
+			</template>
+			<template is="dom-if" if="[[isSubmit]]">
+				
+			</template>
+		<!--/form-->
+		
+	</template>
+	
+	<script>
+		Polymer({
+			is: "px-form",
+
+			properties: {
+				formDataArr: {
+					type: Object,
+					computed: 'getFormData(formData)'
+				},
+				formData: {
+					type: Object
+				},
+				primaryKey: {
+					type: String
+				},
+				primaryReadonly: {
+					type: Boolean,
+					value: true
+				},
+				isSubmit: {
+					type: Boolean,
+					value: false
+				}
+			},
+			_toArray: function(data){
+				var d = data;
+				if(d instanceof Array && d[0]){
+					d = d[0];
+				}
+				if (Object.keys(d).length){
+					return Object.keys(d).map(function(key) {
+						var name = key.charAt(0).toUpperCase() + key.slice(1);
+						var value = d[key];
+						return {"name": name, "value": value};
+					});
+				}
+			},
+			_isObjAction: function(obj){
+				// debugger;
+				if(obj.name.toLowerCase() === 'action'){
+					return false;
+				}else{
+					return true;
+				}
+			},
+			_isObj: function(obj){
+				if(typeof obj !== "object"){
+					return false;
+				} else {
+					return true;
+				}
+			},
+			isPrimary: function(name){
+				if(this.primaryKey){
+					return name == (this.primaryKey.charAt(0).toUpperCase() + this.primaryKey.slice(1));
+				} else {
+					return false;
+				}
+			},
+			isReadonly: function(){
+				return this.primaryReadonly;
+			},
+			getFormData: function(data){
+				return [data];
+			}
+		});
+  </script>
+</dom-module>

@@ -1,0 +1,332 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html" />
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+
+<dom-module id="create-project-view">
+    <style>
+    px-data-table::shadow .flex.px-data-table {
+        background: #f0ffff;
+        /*color: #a52a2a;*/
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .input-45 paper-input {
+        width: 75%;
+        margin: 0% 12.5%;
+        float: left;
+        display: block;
+    }
+    .input-45 .field-container {
+            width: 75%;
+            margin: 0% 12.5%;
+            float: left;
+            display: block; 
+    }
+        .field-container {
+            position: relative;
+            display: block;
+            padding-top: 28px;
+            min-width: 324px;
+            width: 324px;
+            margin-right: 24px;
+    
+        }
+        
+        .field {
+            display: block;
+            width: 100%;
+            padding: 0px;
+            border: none;
+            border-bottom: 1px solid #737373;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            
+            
+            
+        }
+        
+        .field:focus {
+            outline: 0;
+        }
+        
+        .floating-label {
+            position: absolute;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            background-color: transparent;
+            -webkit-transition: 0.2s ease-in-out;
+            transition: 0.2s ease-in-out;
+            -webkit-font-smoothing: antialiased;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            line-height: 20px;          
+        }
+        
+        .field:valid + .floating-label {
+            opacity: 1;
+            top: 0px;
+            color: #737373;
+			margin-top:7px;
+        }
+        
+        .field:focus + .floating-label {
+            color: #3f51b5;
+        }
+        
+        .field-underline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            /*bottom: -5px;
+           border-bottom: 1px solid #737373;*/
+            z-index: -1;
+            padding: 10px 10px 0;
+        }
+        
+        .field:focus + .floating-label + .field-underline {
+            border-color: #3f51b5;
+        }
+        
+        select {
+            height: 24px;
+            line-height: 24px;
+            width: 50%;
+            border: 0px;
+            border-bottom: 1px solid;
+            
+        }
+        
+        option:checked {
+            background-color: linear-gradient(#5A2569, #5A2569);
+        }
+        /* turn it off completely */
+        
+        select:hover {
+            outline: none
+        }
+        
+        select:focus {
+            border-bottom: 1px solid #3f51b5;
+            outline: none
+        }
+        
+        select:invalid {
+            color: gray;
+        }
+        /* make it red instead (with with same width and style) */
+        
+        select:active {
+            border: 0px;
+            border-bottom: 2px solid #3f51b5;
+            outline: none
+        }
+        
+        option:checked {
+            outline: none;
+        }
+        .dis{
+          display:none;
+        }
+        option{
+        background:#ffffff;
+        color:#000;
+        
+        }
+		
+		.error{
+			    display: none;
+				
+				color: #dd2c00;
+				-webkit-font-smoothing: antialiased;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 12px;
+				font-weight: 400;
+				letter-spacing: 0.011em;
+				line-height: 20px;
+				position: absolute;
+				left: 0;
+				right: 0;
+		
+		}
+    
+    </style>
+    <style is="custom-style">
+        paper-button.indigo{
+            font-family: "GE Inspira Sans",sans-serif;
+            color: #fff;
+            background-color : #525156;      
+            margin-bottom: 2%;
+            --paper-button-raised-keyboard-focus: {
+                            background-color: #0a89a9 !important;
+                            color: white !important;
+            };
+        }
+
+        paper-button.custom:hover {
+            background-color: #525156;
+        }
+    </style>
+    <template id="user">
+        <iron-ajax id="AjaxPost" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
+        </iron-ajax>
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+        <form is="iron-form" id="createProjectForm">
+            <px-card id="general">
+
+                <div id="errorCreateProjectMsg" style="display: none">
+                    <span id="msgCreateProjectError">Error while creating</span>
+                </div>
+            
+                <div class="input-45">
+                   
+                    <paper-input name="projectAssignment" label="Project Name" value="" required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter a valid Project Name"></paper-input>
+                    <div class="field-container">
+                        <select class="field" id="project_Type" name="project_Type" required on-change="updateStyle">
+                           <option value="" class="" disabled selected>Project Type</option>
+                            <option value="India" class="" >India</option>
+                            <option value="Global" class="" >Global</option>
+                        </select>
+                        <label class="floating-label">Project Type</label>
+						<div class="error" id="errorProjectType">Select project type</div>
+                        <div class="field-underline"></div>
+                    </div>
+                     
+                </div>
+                
+               
+            </px-card>
+        </form>
+        <px-modal id="modalCreateProjectSuccess123" modalId="modalCreateProjectSuccess123" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgCreateProjectSuccess">Project created successfully.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateProjectError123" modalId="modalCreateProjectError123" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateProjectError">Failed to create project.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+    </template>
+    <script>
+    var dataTable = null;
+    var tableElement = null;
+    Polymer({
+        is: 'create-project-view',
+        properties: {
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showForm: {
+                type: Boolean,
+                notify: true,
+                value: false
+            }
+        },
+        listeners: {
+            'iron-form-submit': '_handleSubmit'
+        },
+        _handleSubmit: function(e) {
+            // Do something
+            this.submit();
+        },
+        ready: function() {
+            /*
+            this.$.polymerForm.addEventListener('iron-form-presubmit', function(event) {
+            	console.log("Before Submit:");
+            	console.log(event);
+            });
+            this.$.polymerForm.addEventListener('iron-form-submit', function(event) {
+            	console.log("During Submit:");
+            	//console.log("event",event);
+            });*/
+        },
+        submit: function() {
+
+            var jsonData = this.$.createProjectForm.serialize();
+
+            // jsonData.npi_Allocation = parseInt(jsonData.npi_Allocation);
+            // jsonData.nti_Allocation = parseInt(jsonData.nti_Allocation);
+            // jsonData.req_Allocation = parseInt(jsonData.req_Allocation);
+            // jsonData.rts_Allocation = parseInt(jsonData.rts_Allocation);
+            console.log(jsonData);
+         
+            this.loading = true;
+            this.$.AjaxPost.body = jsonData;
+            this.$.AjaxPost.url = "https://jpa-rsm-1.run.aws-usw02-pr.ice.predix.io/project/";
+            this.$.AjaxPost.generateRequest();
+        },
+		
+		updateStyle : function() {
+		  this.$$('.error').style.display = "none";
+		  this.$$('#project_Type ').style.borderBottom = "1px solid gray";	
+		}
+        /*_handleAjaxPostResponse: function(request) {
+            this.loading = false;
+            console.log(request.detail.response);
+            document.getElementById('msgCreateProjectSuccess').innerHTML = "Project created successfully.";
+            document.querySelector('#createProjectForm').reset();
+
+            if(document.querySelector('all-projects-view')){
+        		document.querySelector('all-projects-view #projecttable').tableData = [];
+        		document.querySelector('all-projects-view').getProjects();
+            }
+
+            document.getElementById('modalCreateProjectSuccess').modalButtonClicked();
+        },
+        _handleAjaxPostError: function(err) {
+            this.loading = false;
+            document.getElementById('msgCreateProjectError').innerHTML = "Error while creating project.";
+            document.getElementById('modalCreateProjectError').modalButtonClicked();
+            console.log("Error", err.detail);
+        }*/
+    });
+
+     /*function _submitProject(event) {
+        Polymer.dom(event).localTarget.parentElement.parentElement.submit();
+    } */
+
+    window.addEventListener('WebComponentsReady', function(e) {
+        var projectForm = document.querySelector('#createProjectForm');
+        projectForm.addEventListener('iron-form-submit', function(event) {
+        	// alert();
+            // this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+        });
+
+        /*document.getElementById('modalCreateProjectSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+            // debugger;
+            document.querySelector('#projectForm').reset()
+        });*/
+    });
+    </script>
+</dom-module>

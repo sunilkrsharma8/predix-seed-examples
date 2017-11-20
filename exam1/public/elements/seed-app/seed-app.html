@@ -20,16 +20,23 @@
   <template>
 
     <!-- apply imported seed app style module -->
-    <style include="seed-app-styles"></style>
+    <style include="seed-app-styles">
+	main{
+	  background-color : #ffffff;
+	}
+	.px-modal button.btn--primary{
+	background-color : #525156;
+	}
+	</style>
 
     <header role="banner" class="flex flex--middle">
       <div class="viewport flex">
-        <h1 class="flex__item">
-          <ge-svg-logo class="u-mr--"></ge-svg-logo> Seed Application
-        </h1>
+        <h3 class="flex__item">
+          <ge-svg-logo class="u-mr--"></ge-svg-logo> Resource Management
+        </h3>
         <div class="flex__item">
           <div class="flex" style="text-align:right;">
-            <h2 class="flex__item weight--normal">Powered by <predix-logo style="display:inline-block;" class="flex__item u-mr--"></predix-logo></h2>
+            <h4 class="flex__item weight--normal">Powered by <predix-logo style="display:inline-block;" class="flex__item u-mr--"></predix-logo></h4>
           </div>
         </div>
       </div>
@@ -38,6 +45,7 @@
     <div class="viewport">
 
       <div class="content-wrapper">
+
         <px-app-nav
           class="navbar"
           nav-items="[[navItems]]"
@@ -65,6 +73,30 @@
             element-href="/elements/views/dashboards-view.html">
           </px-view>
 
+          <!-- /dashboards rotue and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/dashboard"
+            active="{{_dashboardActive}}">
+          </app-route>
+
+          <px-view
+            active="[[_dashboardActive]]"
+            element-href="/elements/views/my-dashboard.html">
+          </px-view>
+          
+          <!-- /dashboards rotue and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/training"
+            active="{{_trainingActive}}">
+          </app-route>
+
+          <px-view
+            active="[[_trainingActive]]"
+            element-href="/elements/views/create-training-view.html">
+          </px-view>
+
           <!-- /blankpage route and view -->
           <app-route
             route="[[_route]]"
@@ -76,6 +108,117 @@
             element-href="/elements/views/blankpage-view.html">
           </px-view>
 
+          <!-- /blankpage route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/tablepage"
+            active="{{_tablepageActive}}">
+          </app-route>
+          <px-view
+            active="[[_tablepageActive]]"
+            element-href="/elements/views/tablepage-view.html">
+          </px-view>
+
+          <!-- /blankpage route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/ddl"
+            active="{{_ddlActive}}">
+          </app-route>
+          <px-view
+            active="[[_ddlActive]]"
+            element-href="/elements/views/dropdown-view.html">
+          </px-view>
+
+          <!-- /blankpage route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/modalpage"
+            active="{{_modalpageActive}}">
+          </app-route>
+          <px-view
+            active="[[_modalpageActive]]"
+            element-href="/elements/views/modal-view.html">
+          </px-view>
+
+          <!-- /datatable route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/datatable"
+            active="{{_datatablepageActive}}">
+          </app-route>
+          <px-view
+            active="[[_datatablepageActive]]"
+            element-href="/elements/views/datatable-view.html">
+          </px-view>
+
+          <!-- /blankpage route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/rsm"
+            active="{{_rsmpageActive}}">
+          </app-route>
+          <px-view
+            active="[[_rsmpageActive]]"
+            element-href="/elements/views/rsm-view.html">
+          </px-view>
+
+          <!-- /manage users route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/editresource/:user_id"
+            active="{{_editResourcePageActive}}">
+          </app-route>
+          <px-view
+            active="[[_editResourcePageActive]]"
+            element-href="/elements/views/users-view.html">
+          </px-view>
+
+          <!-- /manage users route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/addresource"
+            active="{{_addResourcePageActive}}">
+          </app-route>
+          <px-view
+            active="[[_addResourcePageActive]]"
+            element-href="/elements/views/resource-view.html">
+            <!-- element-href="/elements/views/users-view.html"> -->
+          </px-view>
+
+          <!-- /manage users route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/managgeusers"
+            active="{{_managgeusersPageActive}}">
+          </app-route>
+          <px-view
+            active="[[_managgeusersPageActive]]"
+            element-href="/elements/views/users-view.html">
+          </px-view>
+
+          <!-- /add project route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/createproject"
+            active="{{_createprojectPageActive}}">
+          </app-route>
+          <px-view
+            active="[[_createprojectPageActive]]"
+            element-href="/elements/views/create-project-view.html">
+          </px-view>
+
+          <!-- /add project route and view -->
+          <app-route
+            route="[[_route]]"
+            pattern="/projects"
+            active="{{_projectsPageActive}}">
+          </app-route>
+          <px-view
+            active="[[_projectsPageActive]]"
+            element-href="/elements/views/all-projects-view.html">
+          </px-view>
+<!-- [[_route.path]]{{_createprojectPageActive}} -->
         </main>
 
       </div>
@@ -102,7 +245,7 @@
           value: function() {
             return {
               version: '1.0',
-              name: 'Predix UI Seed',
+              name: 'Resource Management App',
               session: {}
             }
           }
@@ -112,13 +255,53 @@
           type: Array,
           value: function() {
             return [{
-              "label": "Dashboards",
+              "label": "Dashboard",
+              "path": "/dashboard",
+              "icon": "fa-bar-chart"
+            }/* {
+              "label": "Table Page",
+              "path": "/tablepage",
+              "icon": "fa-file-o"
+            }, {
+              "label": "Drop Down Page",
+              "path": "/ddl",
+              "icon": "fa-file-o"
+            }, {
+              "label": "Training",
+              "path": "/training",
+              "icon": "fa-file-o"
+            }*//*,{
+              "label": "Old Dashboards",
               "path": "/dashboards",
               "icon": "fa-tachometer"
             }, {
               "label": "Blank Page",
               "path": "/blankpage",
               "icon": "fa-file-o"
+            }, {
+              "label": "Modal Page",
+              "path": "/modalpage",
+              "icon": "fa-file-o"
+            }*//*, {
+              "label": "Data Table Page",
+              "path": "/datatable",
+              "icon": "fa-table"
+            }*/, {
+              "label": "Resources",
+              "path": "/rsm",
+              "icon": "fa-table"
+            }/*, {
+              "label": "Manage Users",
+              "path": "/managgeusers",
+              "icon": "fa-users"
+            }, {
+              "label": "Create project",
+              "path": "/createproject",
+              "icon": "fa-plus"
+            }*/, {
+              "label": "Projects",
+              "path": "/projects",
+              "icon": "fa-folder"
             }]
           }
         },
@@ -135,15 +318,15 @@
               "href": "http://www.ge.com/terms",
               "target": "_blank"
             }, {
-              "label": "Site Map",
-              "href": "http://www.ge.com/terms",
-              "target": "_blank"
-            }, {
-              "label": "Contact Us",
+              "label": "Contact",
               "href": "http://www.ge.com/contact/general",
               "target": "_blank"
             }, {
               "label": "Accessibility",
+              "href": "http://www.ge.com/accessibility",
+              "target": "_blank"
+            }, {
+              "label": "Cookies",
               "href": "http://www.ge.com/accessibility",
               "target": "_blank"
             }
@@ -160,16 +343,18 @@
 
       ready: function(){
         this._checkForDefaultRoute();
+        // console.log(this._route);
       },
 
       _checkForDefaultRoute: function() {
         // set default route to /dashboards
         var l = window.location;
         if((l.hash === "#/" || l.hash === "") && l.pathname === "/") {
-          l.hash = "/dashboards";
+          l.hash = "/dashboard";
         }
       }
 
     });
+
   </script>
 </dom-module>

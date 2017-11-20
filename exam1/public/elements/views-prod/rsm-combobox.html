@@ -1,0 +1,372 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+
+<dom-module id="rsm-combobox">
+<style is="custom-style">
+   
+       :root {
+            --paper-input-container: {
+                min-width: 324px;
+                width: 324px;
+                margin-right: 24px;
+            }
+            ;
+        }
+        .input-45 .field-container {
+            width: 35%;
+            margin: 0% 7%;
+            float: left;
+            display: block; 
+         }
+        .field-container {
+            position: relative;
+            display: block;
+            padding-top: 28px;
+            min-width: 324px;
+            width: 324px;
+            margin-right: 24px;
+    
+        }
+        
+        .field {
+            display: block;
+            width: 100%;
+            padding: 0px;
+            border: none;
+            border-bottom: 1px solid #737373;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            
+            
+            
+        }
+        
+        .field:focus {
+            outline: 0;
+        }
+        
+        .floating-label {
+          position: absolute;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            background-color: transparent;
+            -webkit-transition: 0.2s ease-in-out;
+            transition: 0.2s ease-in-out;
+            -webkit-font-smoothing: antialiased;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            line-height: 20px;          
+        }
+        
+        .field:valid + .floating-label {
+            opacity: 1;
+            top: 0px;
+            color: #737373;
+			margin-top:7px;
+        }
+        
+        .field:focus + .floating-label {
+            color: #3f51b5;
+        }
+        
+        .field-underline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            /*bottom: -5px;
+           border-bottom: 1px solid #737373;*/
+            z-index: -1;
+            padding: 10px 10px 0;
+        }
+        
+        .field:focus + .floating-label + .field-underline {
+            border-color: #3f51b5;
+        }
+        
+        select {
+            height: 24px;
+            line-height: 24px;
+            width: 50%;
+            border: 0px;
+            border-bottom: 1px solid;
+			color:rgb(165, 165, 165);
+            
+        }
+        
+        option:checked {
+            background-color: linear-gradient(#5A2569, #5A2569);
+        }
+        /* turn it off completely */
+        
+        select:hover {
+            outline: none
+        }
+        
+        select:focus {
+            border-bottom: 1px solid #3f51b5;
+            outline: none
+        }
+        
+        select:invalid {
+            color: gray;
+        }
+        /* make it red instead (with with same width and style) */
+        
+        select:active {
+            border: 0px;
+            border-bottom: 2px solid #3f51b5;
+            outline: none
+        }
+        
+        option:checked {
+            outline: none;
+        }
+      
+        option{
+        background:#d1d0d8;
+        color:#000;
+        
+        }
+        .layout{
+             margin: 0% 15%;
+        }
+        
+        .input-45 paper-input {
+            width: 35%;
+            margin: 0% 7%;
+            float: left;
+            display: block;
+        }
+        .input-45 .field-container {
+            float: left;
+            display: block;
+        }  
+    
+      .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+		
+			.error{
+			    display: none;
+				
+				color: #dd2c00;
+				-webkit-font-smoothing: antialiased;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 12px;
+				font-weight: 400;
+				letter-spacing: 0.011em;
+				line-height: 20px;
+				position: absolute;
+				left: 0;
+				right: 0;
+		
+		}
+        
+    </style>
+    <template id="user">
+        <iron-ajax id="fetchProjects" method="GET" url="" content-type="application/json" handle-as="json" last-response="{{_resourcesContext}}" on-response='fillCombobox'>
+        </iron-ajax> 
+		
+      <div class="input-45 row">                                        
+          <div class="field-container">
+            <select data="{{_projectsArr}}"  on-tap="updateCombo" class="field" id="id" name="id" auto-validate error-message=" Please select Project Name" on-change="updateType">
+                <option value="" class="" disabled selected>Project Name</option>
+            </select>
+				
+            <label class="floating-label">Project Name</label>
+			<div class="error" id="error_id">Please select Project Name</div>
+            <div class="field-underline"></div>
+         </div>
+         <paper-input name="project_Type" id="project_Type" label="Project Type" value="" readonly required auto-validate error-message=" Please enter Project type"></paper-input>  
+         <input type="hidden" name="projectAssignment" id="projectAssignment">                
+    </div>     
+
+    </template>
+    <script>
+
+        Polymer({
+            is: 'rsm-combobox',
+            properties : {
+              _initialProjectContext: {
+                type: Object,
+                computed: '_computeInitialProjectContext(_resourcesContext)'
+            },
+			 _remProjectContext: {
+                type: Object,
+                computed: '_computeRemoveProjectContext(_projContext)'
+            },
+            _projectsArr : {
+              type: Array,
+              notify: true
+            },
+			_selArrLength : {
+              type: Number,
+              notify: true,
+			  value : 0
+            }
+            
+            },
+            ready: function() {
+                this.getProjects();
+            } ,
+            
+            getProjects: function() {
+                //set the value of loading to true just before generating request
+                this.$.fetchProjects.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/project";
+                this.$.fetchProjects.generateRequest();
+           },
+		   
+		    getRemProjects: function() {
+                //set the value of loading to true just before generating request
+                this.$.fetchProjectsRemove.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/project";
+                this.$.fetchProjectsRemove.generateRequest();
+           },
+           
+           fillCombobox : function(){
+			//console.log('project_Type----------',this.project_Type);
+            var len = this._projectsArr.length;
+			
+			//console.log('_projectsArr',this._projectsArr);
+			
+            var select = this.$$("#id");
+            var selLen = select.length;
+			
+            
+		 if(selLen > 1){
+			var optArr = [];
+			for(var i = 0; i <= selLen - 1; i++) {		
+			//  console.log(select[i].value);
+			  var o = select[i].value; 
+			  optArr.push(o);
+			}
+			//console.log('optArr',optArr);
+			
+			var tempSelLem = this._selArrLength-1;
+			//console.log('this._selArrLength',tempSelLem);
+			//console.log('len',len);
+			if(len < tempSelLem){
+				var projArr = [];
+				for(var i = 0; i <= len - 1; i++) {		
+				  //console.log(select[i].value);
+				  var index = (this._projectsArr[i].id).toString(); 
+				  projArr.push(index);
+				}
+				//console.log('optArr',optArr);
+				//console.log('projArr',projArr);
+				for(var i = 1; i <= tempSelLem; i++) { 
+				//console.log('optArr',this._projectsArr[i].id);
+					var id = optArr[i];
+					//console.log('projArr'+id+' : '+projArr.indexOf(id));	
+					var index = projArr.indexOf(id);
+					if(index === -1){
+						//console.log('remove',id);
+						select.remove(i);
+					}				
+			 } 
+			 this._selArrLength = select.length;
+			}else{
+			for(var i = 0; i <= len - 1; i++) { 
+				//console.log('optArr',this._projectsArr[i].id);
+					var id = (this._projectsArr[i].id).toString();
+					//console.log('optArr'+this._projectsArr[i].id+' : '+optArr.indexOf(id));	
+					var index = optArr.indexOf(id);
+					if(index === -1){
+						option = document.createElement("option");
+						option.value = this._projectsArr[i].id;
+						option.innerHTML = this._projectsArr[i].projectAssignment;
+						select.appendChild(option);
+					}
+							
+			 } 
+				this._selArrLength = select.length;	
+			
+			}
+		
+		}else{
+		   for(var i = 0; i <= len - 1; i++) { 
+                //console.log('optArr',optArr.indexOf(this._projectsArr[i].projectAssignment));		 
+                option = document.createElement("option");
+                option.value = this._projectsArr[i].id;
+                option.innerHTML = this._projectsArr[i].projectAssignment;
+                select.appendChild(option);         
+         } 
+		  this._selArrLength = select.length;
+		
+		}
+
+			
+         console.log('ready select final ---',select);  
+         console.log("--ready combo--");
+           
+           },
+
+         _computeInitialProjectContext: function(_resourcesContext) {
+         console.log('_resourcesContext',_resourcesContext);
+         this._projectsArr = _resourcesContext;
+          // return _resourcesContext;
+         },
+
+		 
+		 updateCombo : function(){
+		 
+		 
+		  var select = this.$$("#id");
+		  var selLen = select.length;
+		  
+		  if(selLen > 1){
+		     this.getProjects();
+		  }
+           	 
+		 },
+         	 
+         updateType : function (e){
+		 
+		 if(this.$$('#id').value != ''){
+				  this.$$('#error_id').style.display = "none";
+				  this.$$('#id').style.borderBottom = "1px solid gray";	
+					
+					}
+             console.log('--Updating projectType--');
+             var arr = e.target.data;
+             var e_id = e.target.value;
+             var len = arr.length;
+             var input = this.$$('#project_Type');
+             var proj_assignment = this.$$("#projectAssignment");
+             for( var i = 0 ;i <= len - 1 ; i++){
+                 var id = (arr[i].id).toString();
+                 console.log('id',id); 
+                 if(id === e_id){
+                     console.log(arr[i].project_Type);
+                     input.value = arr[i].project_Type;
+                     proj_assignment.value = arr[i].projectAssignment;
+                 }
+            }
+        }
+    });
+        
+        
+    </script>
+</dom-module>

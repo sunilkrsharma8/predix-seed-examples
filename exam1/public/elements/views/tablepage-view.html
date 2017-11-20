@@ -1,0 +1,68 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html" />
+<link rel="import" href="../../bower_components/px-sample-cards/blank-card.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../content-header/content-header.html">
+<dom-module id="tablepage-view">
+    <template>
+        <content-header title="Blank Card" style="display: block; margin-bottom: 6px;"></content-header>
+        <blank-card id="myCard">
+            An example of a blank card without any content (except for this brief description). Replace this with the actual content for your application.
+        </blank-card>
+        <!-- <template id="aaa"> -->
+            
+        <px-card>
+            <px-data-table show-column-chooser="true" id="projecttable" table-data='{{projectList}}' striped="true" enable-column-resize="true" filterable="true" striped="true">
+                <px-data-table-column ellipsis-clip-position="center" type="html" label="Delete" name="deleteAction"></px-data-table-column>
+                <px-data-table-column label="Project Id" name="project_id" sortable="true" filterable="true"></px-data-table-column>
+                <px-data-table-column label="Name" name="projectAssignment" sortable="true" filterable="true""></px-data-table-column>
+                <px-data-table-column label="NTI" name="nti_Allocation" sortable="true" filterable="true""></px-data-table-column>
+                <px-data-table-column label="NPI" name="npi_Allocation" sortable="true" filterable="true""></px-data-table-column>
+                <px-data-table-column label="RTS" name="rts_Allocation" sortable="true" filterable="true""></px-data-table-column>
+                <px-data-table-column label="REQ" name="req_Allocation" sortable="true" filterable="true""></px-data-table-column>
+                <px-data-table-column label="Type" name="project_Type" sortable="true" filterable="true""></px-data-table-column>    
+            </px-data-table>
+                <paper-button id="addToCart" raised class="custom indigo" on-click="addRow">
+                    <iron-icon icon="icons:save"></iron-icon> &nbsp; Add </paper-button>
+                    <paper-button id="removeToCart" raised class="custom indigo" on-tap="deleteRow">
+                    <iron-icon icon="icons:save"></iron-icon> &nbsp; Remove </paper-button>
+                    <button on-tap="handleTap">Kick Me</button>
+        </px-card>
+        <!-- </template> -->
+
+
+    </template>
+    <script>
+    Polymer({
+        is: 'tablepage-view',
+        properties: {
+            projectList:{
+                type: Object,
+                value: [{"project_id":17,"projectAssignment":"j","nti_Allocation":1,"npi_Allocation":1,"rts_Allocation":1,"req_Allocation":1,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"hj"},{"project_id":21,"projectAssignment":"machines n oil","nti_Allocation":22,"npi_Allocation":22,"rts_Allocation":45,"req_Allocation":65,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"Automation"},{"project_id":23,"projectAssignment":"machines n oil","nti_Allocation":22,"npi_Allocation":22,"rts_Allocation":45,"req_Allocation":65,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"Automation"}]
+            }
+        },
+        ready: function() {
+            // console.log('blankpage-view ready()');
+            // this.listen(this.$.addToCart, 'tap', 'addRow');
+            // this.listen(this.$.removeToCart, 'tap', 'deleteRow');
+            // this.$.addtoCart.addEventListener('click',this.addRow.bind(this));
+            // this.$.deletetoCart.addEventListener('click',this.deleteRow.bind(this));
+        },
+        handleTap: function() {
+        alert('Ow!');
+      },
+        addRow: function(){
+            this.$.projecttable.tableData.push({"project_id":17,"projectAssignment":"j","nti_Allocation":1,"npi_Allocation":1,"rts_Allocation":1,"req_Allocation":1,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"hj"});
+            console.log(this.$.projecttable.tableData);
+            // this.projectList.push({"project_id":17,"projectAssignment":"j","nti_Allocation":1,"npi_Allocation":1,"rts_Allocation":1,"req_Allocation":1,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"hj"});
+        },
+        deleteRow: function(){
+            // this.projectList.pop();
+            this.$.projecttable.tableData.pop();
+            console.log(this.$.projecttable.tableData);
+        }
+    });
+    </script>
+</dom-module>

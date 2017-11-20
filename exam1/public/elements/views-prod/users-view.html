@@ -1,0 +1,370 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+<dom-module id="users-view">
+    <style>
+    #errorCreateResourceMsg{
+	    color: #ca5153;
+	    padding-top: 10px;
+	    display: block;
+	    height: 30px;
+	    font-size: 15px;
+	    text-align: center;
+	    background-color: #fde4e1;
+    }
+
+    .hidden {
+        display: none;
+    }
+    
+    .user-details {
+        position: relative;
+        margin: 10px auto;
+        width: 400px;
+        height: 100px;
+    }
+    
+    .user-details div {
+        position: absolute;
+        width: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .input-45 paper-input {
+        width: 35%;
+        margin: 0% 7%;
+        float: left;
+        display: block;
+    }
+    
+    .input-45 label hr {
+        margin: 0% 7% 1% 7%;
+        width: 86%;
+        overflow: hidden;
+        color: red;
+        padding-top: 2%;
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+
+    paper-button.indigo {
+        background-color: #086e87;
+        width: 20%;
+        margin-top: 5%;
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+            background-color: #0a89a9 !important;
+            color: white !important;
+        }
+        ;
+    }
+    </style>
+    <template id="user">
+        <iron-ajax id="rsmAjax" url="" last-response="{{_rsmResponse}}" on-response="showUser">
+        </iron-ajax>
+        <iron-ajax id="CreateResourceAjax1" method="POST" content-type="application/json" handle-as="json" on-response="_handleCreateResourceAjaxResponse" on-error="_handleCreateResourceAjaxError">
+        </iron-ajax>
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+        <!-- <div class="user-details">
+		<div>
+			<label for="input1">SSO ID</label>
+			<input id="userId" type="text" placeholder="Enter SSO ID" class="text-input">
+			<input id="submit" on-click="getUser" class="form-field--inline btn btn--primary" type="submit" value="Submit">
+		</div>
+	</div> -->
+        <!-- <template is="dom-if" if="{{showTable}}">
+		<form is="iron-form" method="get" action="/" id="polymerForm">
+			<px-card header-text='Resource Details' id="general">
+				<px-form form-data={{resourceData}}  primary-key="sso_id" primary-readonly></px-form>
+			</px-card>
+			<px-card header-text='Project Details' id="projects123">
+				<template is="dom-repeat" items="{{projectDetails}}">
+					<px-form form-data={{item}} primary-key="project_id" is-submit=true></px-form>
+				</template>
+			</px-card>
+
+
+			<paper-button toggles raised class="custom green" on-tap="submit"> Submit <iron-icon icon="icons:save"></iron-icon></paper-button>
+		</form>
+
+	</template> -->
+        <px-card id="manage_res">
+            
+            <div id="errorCreateResourceMsg">
+            	<span id="msgCreateResourceError">Error while creating</span>
+            </div>
+
+            <form is="iron-form" method="get" action="/" id="resourceForm" novalidate>
+                <px-card header-text='Resource Details' id="res_details">
+                    <!-- <paper-input id="primary" name="ProjectId" label="Project Id" readonly value="123"></paper-input> -->
+                    <div class="input-45">
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid name" name="name" label="Name" id="name" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid sso Id" name="sso_id" label="SSO" id="sso_id" value=""></paper-input>
+                        <paper-input required auto-validate name="p_N_L" label="PNL" id="p_N_L" value=""></paper-input>
+                        <paper-input required auto-validate name="band" pattern="[A-Za-z ]*" error-message=" Please enter valid band" label="Band" id="band" value=""></paper-input>
+                    </div>
+                </px-card>
+                <px-card header-text='Profile Information' id="profile_info">
+                    <div class="input-45">
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid title" id="title" name="title" label="Title" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid type" id="type" name="type" label="Type" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid function" id="function" name="function" label="Function" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid manager" id="manager" name="manager" label="Manager" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid role" id="role" name="role" label="Role" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid location" id="location" name="location" label="Location" value=""></paper-input>
+                    </div>
+                </px-card>
+                <px-card header-text='Background' id="bg_details">
+                    <div class="input-45">
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid qualification" id="qualification" name="qualification" label="Qualification" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid Experience" id="ge_Experience" name="ge_Experience" label="GE Experience" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid Skills" id="key_Skills" name="key_Skills" label="Key Skills" value=""></paper-input>
+                        <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid Experience" id="total_Experience" name="total_Experience" label="Total Experience" value=""></paper-input>
+                    </div>
+                </px-card>
+                <px-card header-text='PROJECT DETAILS' id="projectDetails">
+                    <form is="iron-form" id="projectForm">
+                        <div class="input-45">
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid Project Name" name="projectAssignment" label="Project Assignment" value=""></paper-input>
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid Project Type" name="project_Type" label="Project Type" value=""></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid NPI %" name="npi_Allocation" label="NPI" value=""><div suffix>%</div></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid NTI %" name="nti_Allocation" label="NTI" value=""><div suffix>%</div></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid RTS %" name="rts_Allocation" label="RTS" value=""><div suffix>%</div></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid REQ %" name="req_Allocation" label="REQ" value=""><div suffix>%</div></paper-input>
+                        </div>
+                    </form>
+                </px-card>
+                <div style="display:none;" class="input-45 text-center">
+                    <br/>
+                    <paper-button raised class="custom indigo" onclick="_submitResource(event)">
+                        <iron-icon icon="icons:save"></iron-icon> &nbsp; Save </paper-button>
+                </div>
+            </form>
+        </px-card>
+
+        <px-modal id="modalCreateResourceSuccess123" modalId="modalCreateResourceSuccess123" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgCreateResourceSuccess">Resource added successfully.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateResourceError123" modalId="modalCreateResourceError123" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateResourceError">Failed to add Resource.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+    </template>
+    <script>
+    var dataTable = null;
+    var tableElement = null;
+    Polymer({
+        is: 'users-view',
+        properties: {
+            resourceData: {
+                type: Object,
+                computed: 'getFormattedResourceData(_rsmResponse)'
+            },
+            resourceInfo: {
+                type: Object,
+                notify: true,
+            },
+            projectDetails: {
+                type: Object,
+                computed: 'getProjectDetails(_rsmResponse)'
+            },
+            action: {
+                type: String,
+                notify: true,
+                value: 'addResource'
+            },
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showTable: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            userid: {
+                type: Object
+            },
+            routeData: {
+		      type: Object,
+		      value: function () {
+		        // Default page.
+		        return { page: 'view1' };
+		      }
+		    },
+        },
+        listeners: {
+            'iron-form-submit': '_handleSubmit'
+        },
+        resetResourceInfo: function(){
+            this.resourceInfo = {
+                    "action": null,
+                    "sso_id": null,
+                    "name": null,
+                    "band": null,
+                    "function": null,
+                    "role": null,
+                    "title": null,
+                    "location": null,
+                    "manager": null,
+                    "projectDetails": [],
+                    "qualification": null,
+                    "ge_Experience": null,
+                    "total_Experience": null,
+                    "key_Skills": null
+                };
+        },
+        _handleSubmit: function(e) {
+        	
+            this.submit();
+        },
+        ready: function() {
+        	
+        },
+        setValues: function(){
+
+            this.$$('#sso_id').value = this.resourceInfo.sso_id;
+            this.$$('#name').value = this.resourceInfo.sso_id;
+            this.$$('#band').value = this.resourceInfo.sso_id;
+            this.$$('#function').value = this.resourceInfo.sso_id;
+            this.$$('#title').value = this.resourceInfo.sso_id;
+            this.$$('#location').value = this.resourceInfo.sso_id;
+            this.$$('#qualification').value = this.resourceInfo.sso_id;
+            this.$$('#ge_Experience').value = this.resourceInfo.sso_id;
+            this.$$('#total_Experience').value = this.resourceInfo.sso_id;
+            this.$$('#key_Skills').value = this.resourceInfo.sso_id;
+        },
+        editUser: function() {
+            console.log("Edit the User........");
+        },
+        getFormattedResourceData: function(_rsmResponse) {
+            if (_rsmResponse) {
+                this.loading = false;
+                this.showTable = true;
+                var formData = JSON.stringify(_rsmResponse);
+                return JSON.parse(formData);
+            }
+        },
+
+        getProjectDetails: function(_rsmResponse) {
+            if (_rsmResponse) {
+                return _rsmResponse.projectDetails;
+            }
+        },
+
+        getUser: function() {
+            this.loading = true;
+            var sso = this.$.userId.value;
+            this.$.rsmAjax.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/resources/" + sso;
+            this.$.rsmAjax.generateRequest();
+        },
+        submit: function() {
+            console.log("inside submit of users-view");
+            var form = event;
+            var jsonData = {};
+
+           // console.log("Form ", form);
+            //  debugger;
+            var general = document.querySelector("#resourceForm");
+            var details = general;
+          //  console.log("details ", details);
+            for (var j = 0; j < details.length; j++) {
+                var pInput = details[j];
+              //  console.log('pInput', pInput);
+                var inputValue = pInput.value;
+                var label = pInput.name;
+                // debugger
+                //  label = label.charAt(0).toLowerCase() + label.slice(1);
+                jsonData[label] = inputValue;
+               // console.log('json', jsonData);
+            }
+
+            jsonData.projectDetails = [];
+          //  debugger;
+
+            var projects = document.querySelector("#projectDetails div");
+            console.log("proje", projects);
+            var projectData = {};
+            var inputValue ,pInput,label;
+            var pDetails = projects.querySelectorAll("paper-input");
+            console.log("pDetails", pDetails);
+           // debugger;
+
+            for (var i = 0; i < pDetails.length; i++) {
+               //  for (var j = 0; j < pDetails.length; j++) {
+                    pInput = pDetails[i];
+                    console.log("pInput", pInput)
+                    inputValue = pInput.querySelector("input").value;
+                     console.log("inputValue", inputValue);
+                     var label = pInput.name
+                    /*label = pInput.querySelector("label").innerHTML;
+                     console.log("label ", label);
+                    label = label.charAt(0).toLowerCase() + label.slice(1);
+                     console.log("label2 ", label);*/
+                    projectData[label] = inputValue;                    
+                     console.log("projectData[label] ", projectData[label]);
+            }
+                jsonData.projectDetails.push(projectData);
+           // }
+
+            console.log("jsondata ", jsonData);
+            // debugger;
+            var sso = jsonData.sso_id;
+            this.$.CreateResourceAjax.body = jsonData;
+            this.$.CreateResourceAjax.url="https://rsm.run.aws-usw02-pr.ice.predix.io/resources/";
+            this.$.CreateResourceAjax.generateRequest();
+        },
+        showUser: function() {
+            //console.log("XXXXXXXXXXXX");
+        },
+        _handleCreateResourceAjaxResponse: function(request) {
+            this.loading = false;
+            console.log(request.detail.response);
+            document.getElementById('msgCreateResourceSuccess').innerHTML = "Resource added successfully.";
+            document.querySelector('#resourceForm').reset()
+            document.querySelector('#projectForm').reset()
+            
+            document.getElementById('modalCreateResourceSuccess').modalButtonClicked();
+            // debugger;
+            if(document.querySelector("rsm-view")){
+            	document.querySelector("rsm-view #mytable").tableData = [];
+            	document.querySelector("rsm-view").attributesReady();
+            }
+
+            if(document.querySelector('all-projects-view')){
+        		document.querySelector('all-projects-view #projecttable').tableData = [];
+        		document.querySelector('all-projects-view').getProjects();
+            }
+        },
+        _handleCreateResourceAjaxError: function(err) {
+            this.loading = false;
+            document.getElementById('msgCreateResourceError').innerHTML = "Error while creating resource.";
+            document.getElementById('modalCreateResourceError').modalButtonClicked();
+            console.log("Error", err.detail);
+        }
+    });
+
+    function _submitResource(event) {
+    	document.getElementById('resourceForm').submit();
+    	// console.log(document.getElementById('resourceForm'));
+    	// console.log(Polymer.dom(event).localTarget.parentElement.parentElement.querySelector("#resourceForm"));
+        // Polymer.dom(event).localTarget.parentElement.parentElement.querySelector("#resourceForm").submit();
+    }
+
+    </script>
+</dom-module>

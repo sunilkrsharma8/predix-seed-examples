@@ -1,0 +1,141 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html"/>
+<link rel="import" href="../../bower_components/px-modal/px-modal.html"/>
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+<dom-module id="create-project-view">
+  <style>
+	px-data-table::shadow .flex.px-data-table{
+		background: #f0ffff;
+		/*color: #a52a2a;*/
+	}
+	.hidden{
+		display: none;
+	}
+	.user-details{
+		position: relative;
+		margin: 10px auto;
+		width: 400px;
+		height: 100px;
+	}
+	.user-details div {
+		position: absolute;
+		width: 100%;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+  </style>
+  
+  <template id="user">
+    <iron-ajax
+		id="AjaxPost"
+		method="POST"
+		content-type="application/json"
+		handle-as="json"
+		on-response="_handleAjaxPostResponse"
+		on-error="_handleAjaxPostError">
+	</iron-ajax>
+	<template is="dom-if" if="{{loading}}">
+		<paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+	</template>
+	
+	<form is="iron-form" method="get" action="/" id="projectForm">
+		<px-card header-text='Project Details' id="general">
+			<!-- <paper-input id="primary" name="ProjectId" label="Project Id" readonly value="123"></paper-input> -->
+			<paper-input name="project_Type" label="project_Type" value=""></paper-input>
+			<paper-input name="projectAssignment" label="projectAssignment" value=""></paper-input>
+			<paper-input name="nti_Allocation" label="nti_Allocation" value=""></paper-input>
+			<paper-input name="npi_Allocation" label="npi_Allocation" value=""></paper-input>
+			<paper-input name="rts_Allocation" label="rts_Allocation" value=""></paper-input>
+			<paper-input name="req_Allocation" label="req_Allocation" value=""></paper-input>
+		</px-card>
+		<paper-button toggles raised class="custom green" on-tap="submit"> Submit <iron-icon icon="icons:save"></iron-icon></paper-button>
+	</form>
+
+	<px-modal id="modal" modalId="modal" btn-modal-positive="Close" modal-heading="Sign-in required" modal-action-button-clicked="btnModalPositiveClicked" >
+      <p>
+          <b id="msg">Please sign-in to access this part of the application.</b>
+      </p>
+      <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+	</px-modal>
+  </template>
+  <script>
+	var dataTable = null;
+	var tableElement = null;
+    Polymer({
+      is: 'create-project-view',
+      properties: {
+	  },
+      ready: function() {
+		/*
+		this.$.polymerForm.addEventListener('iron-form-presubmit', function(event) {
+			console.log("Before Submit:");
+			console.log(event);
+		});
+		this.$.polymerForm.addEventListener('iron-form-submit', function(event) {
+			console.log("During Submit:");
+			//console.log("event",event);
+		});*/
+      },
+	  getUser: function(){
+		this.loading = true;
+		var sso = this.$.userId.value;
+		this.$.rsmAjax.url = "https://jpa-rsm.run.aws-usw02-pr.ice.predix.io/resources/" + sso;
+		this.$.rsmAjax.generateRequest();
+	  },
+	  submit: function() {
+		console.log("inside submit of users-view");
+		var form = event.path[1];
+		var jsonData = this.$.projectForm.serialize();
+		
+		/*
+		var general = form.querySelector("#general");
+		var details = general.querySelectorAll("paper-input");
+		for(var j=0; j< details.length; j++){
+			var pInput = details[j];
+			var inputValue = pInput.querySelector("input").value;
+			var label = pInput.querySelector("label").innerHTML;
+			label = label.charAt(0).toLowerCase() + label.slice(1);
+			jsonData[label] = inputValue;
+		}
+		
+		jsonData.projectDetails = [];
+		
+		var projects = form.querySelectorAll("#projects");
+		for(var i=0; i < projects.length; i++){
+			var projectData = {};
+			var pDetails = projects[i].querySelectorAll("paper-input");
+			for(var j=0; j< pDetails.length; j++){
+				var pInput = pDetails[j];
+				var inputValue = pInput.querySelector("input").value;
+				var label = pInput.querySelector("label").innerHTML;
+				label = label.charAt(0).toLowerCase() + label.slice(1);
+				projectData[label] = inputValue;
+			}
+			jsonData.projectDetails[i] = projectData;
+		}*/
+		
+		console.log(jsonData);
+		
+		this.$.AjaxPost.body = jsonData;
+		this.$.AjaxPost.url="https://jpa-rsm.run.aws-usw02-pr.ice.predix.io/projectdetail/";
+		this.$.AjaxPost.generateRequest();
+	  },
+	  _handleAjaxPostResponse: function(request) {
+		console.log(request.detail.response);
+		document.getElementById('msg').innerHTML = "Success";
+		document.getElementById('modal').modalButtonClicked();
+	  },
+	  _handleAjaxPostError : function(err){
+		document.getElementById('msg').innerHTML = "Error";
+		document.getElementById('modal').modalButtonClicked();
+		console.log("Error",err.detail);
+	  }
+    });
+
+  </script>
+</dom-module>

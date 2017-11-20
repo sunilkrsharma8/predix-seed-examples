@@ -1,0 +1,87 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html"/>
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+
+<dom-module id="form-view">
+	 <style>
+  </style>
+	<template >		
+		<form is="iron-form" method="get" action="/" id="eventsDemo">
+  <paper-input name="name" label="Name" required auto-validate></paper-input>
+  <paper-input name="password" label="Password" type="password" required auto-validate></paper-input>
+  <paper-checkbox name="read" required>You must check this box</paper-checkbox><br>
+  <paper-button raised onclick="_delayedSubmit(event)" disabled id="eventsDemoSubmit">
+    <paper-spinner id="spinner" hidden></paper-spinner>Submit</paper-button>
+  <paper-button raised onclick="_reset(event)">Reset</paper-button>
+  <div class="output"></div>
+</form>
+<script>
+  eventsDemo.addEventListener('change', function(event) {
+    // Validate the entire form to see if we should enable the `Submit` button.
+    eventsDemoSubmit.disabled = !eventsDemo.validate();
+  });
+  function _delayedSubmit(event) {
+    spinner.active = true;
+    spinner.hidden = false;
+    eventsDemoSubmit.disabled = true;
+    // Simulate a slow server response.
+	debugger;
+    Polymer.dom(event).localTarget.parentElement.submit();
+	/*
+    setTimeout(function() {
+		console.log(Polymer.dom(event).localTarget.parentElement);
+      Polymer.dom(event).localTarget.parentElement.submit();
+    }, 1000);*/
+  }
+  function _reset(event) {
+    var form = Polymer.dom(event).localTarget.parentElement
+    form.reset();
+    form.querySelector('.output').innerHTML = '';
+  }
+  document.getElementById('eventsDemo').addEventListener('iron-form-submit', function(event) {
+    spinner.active = false;
+    spinner.hidden = true;
+    eventsDemoSubmit.disabled = false;
+    this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+  });
+</script>
+    </template>
+    <script>
+
+		Polymer({
+			is: 'form-view',
+			properties: {
+				loading: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				showTable: {
+					type: Boolean,
+					notify: true,
+					value: false
+				},
+				showSearch: {
+					type: Boolean,
+					value: false
+				},
+				searchInput: {
+					type: String,
+					value: ''
+				}
+			},
+			ready: function() {
+			}
+		});
+    </script>
+</dom-module>

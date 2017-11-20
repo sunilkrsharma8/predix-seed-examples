@@ -1,3 +1,7 @@
 {
-  "directory": "public/bower_components"
+  "directory": "public/bower_components",
+  "registry": "http://bower.herokuapp.com",
+   "proxy":"http://CORP%5Csapoul:JunoCorpCM%4022@arlproxy1.igate.com:8080/",
+   "https-proxy":"http://CORP%5Csapoul:JunoCorpCM%4022@arlproxy1.igate.com:8080/",
+   "strict-ssl": false
 }

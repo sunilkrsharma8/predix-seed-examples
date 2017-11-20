@@ -1,0 +1,370 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html" />
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+
+<dom-module id="create-training-view">
+    <style is="custom-style">
+    @import url(http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,700,500italic,900,700italic,900italic);       
+	   :root {
+            --paper-input-container: {
+                min-width: 324px;
+                width: 324px;
+                margin-right: 24px;
+            }
+            ;
+        }
+        
+        .horizontal-layout {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+        }
+        
+        .flexchild {
+            @apply(--layout-flex);
+        }
+        
+        .flex2child {
+            @apply(--layout-flex-2);
+        }
+        
+        .noflex {
+            @apply(--layout-flex-none);
+        }
+        
+        .center-justified {
+            @apply(--layout-center-justified);
+        }
+        
+        .field-container {
+            position: relative;
+            display: block;
+            padding: 8px 0;
+            min-width: 324px;
+            width: 324px;
+            margin-right: 24px;
+        }
+        
+        .field {
+            display: block;
+            width: 100%;
+            padding: 0px;
+            border: none;
+            border-bottom: 1px solid #737373;
+            font-family: 'Roboto', 'Noto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+			
+			
+			
+        }
+        
+        .field:focus {
+            outline: 0;
+        }
+        
+        .floating-label {
+            position: absolute;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            background-color: white;
+            -webkit-transition: 0.2s ease-in-out;
+            transition: 0.2s ease-in-out;
+            font-family: 'Roboto', 'Noto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            line-height: 20px;
+        }
+        
+        .field:valid + .floating-label {
+            opacity: 1;
+            top: -5px;
+            color: #737373;
+        }
+        
+        .field:focus + .floating-label {
+            color: #3f51b5;
+        }
+        
+        .field-underline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: -5px;
+            border-bottom: 1px solid #737373;
+            z-index: -1;
+            padding: 10px 10px 0;
+        }
+        
+        .field:focus + .floating-label + .field-underline {
+            border-color: #3f51b5;
+        }
+        
+        select {
+            height: 42px;
+            line-height: 30px;
+            width: 50%;
+            border: 0px;
+            border-bottom: 1px solid;
+			
+        }
+        
+        option:checked {
+            background-color: linear-gradient(#5A2569, #5A2569);
+        }
+        /* turn it off completely */
+        
+        select:hover {
+            outline: none
+        }
+        
+        select:focus {
+            border-bottom: 1px solid #3f51b5;
+            outline: none
+        }
+        
+        select:invalid {
+            color: gray;
+        }
+        /* make it red instead (with with same width and style) */
+        
+        select:active {
+            border: 0px;
+            border-bottom: 2px solid #3f51b5;
+            outline: none
+        }
+        
+        option:checked {
+            outline: none;
+        }
+		.dis{
+		display:none;
+		}
+		option{
+		background:#d1d0d8;
+		color:#000;
+		
+		}
+		.layout{
+			 margin: 0% 15%;
+		}
+		.btn-center{
+	text-align :center;
+	}
+	
+		 paper-button.custom:hover {
+        background-color: #525156;
+    }
+    
+    paper-button.indigo {
+        background-color: #2886af;
+        width: 20%;
+        margin-bottom: 2%;
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+            background-color: #0a89a9 !important;
+            color: white !important;
+        }
+        ;
+    }
+    </style>
+
+    <template id="user">
+         <iron-ajax id="AjaxPost" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
+        </iron-ajax>
+		 <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+        <px-card header-text='Training Details'>
+
+            <form is="iron-form" name="trainingForm" id="trainingForm">
+            <div class="layout">
+                <div class="horizontal-layout">
+                    <div class="horizontal-layout flexchild">
+                       
+						
+						
+						      <div class="field-container">
+                            <select class="field" id="trainingType" name="trainingType" required>
+                                <option value="" class="dis" disabled selected>Training Type</option>
+                                <option value="Softskills" class="" >Softskills</option>
+                                <option value="GE Trainings" class="">GE Trainings</option>
+                                <option value="Technical" class="">Technical</option>
+                            </select>
+                            <label class="floating-label">Training Type</label>
+                            <div class="field-underline"></div>
+                        </div>
+						
+						
+                    </div>
+                    <div class="horizontal-layout flex2child">
+                        <paper-input label="Training Name Abbr" id="training-name-abbr" name="training-name-abbr" type="text"></paper-input>
+                    </div>
+              
+
+                </div>
+				<div class="horizontal-layout">
+				      <div class="horizontal-layout flexchild">
+
+                        <div class="field-container">
+                            <select class="field" id="effectiveness-evaluation" name="effectiveness-evaluation" required>
+                                <option value="" class="dis" disabled selected>Select Effectiveness Evaluation</option>
+                                <option value="Non-Measured" class="" >Non-Measured</option>
+                                <option value="GE Measured" class="">GE Measured</option>
+
+                            </select>
+                            <label class="floating-label">Effectiveness Evaluation</label>
+                            <div class="field-underline"></div>
+                        </div>
+
+                    </div>
+					<div class="horizontal-layout flex2child">
+                        <paper-input name="cost" label="Cost" id="cost" class="text-input" type="text"></paper-input>
+                    </div>
+				</div>
+
+                <div class="horizontal-layout">
+                    
+                    <div class="horizontal-layout flexchild">
+                        <paper-input name="days" label="Days" id="days" class="text-input" type="text"></paper-input>
+                    </div>
+
+                    <div class="horizontal-layout flex2child">
+                        <paper-input id="tl" name="tl" label="T & L" type="text"></paper-input>
+                    </div>
+
+                </div>
+                <div class="horizontal-layout">
+                    <div class="horizontal-layout flexchild">
+                        <paper-input name="total-cost-per-person" label="Total cost per person" id="total-cost-per-person" type="text"></paper-input>
+                    </div>
+                    <div class="horizontal-layout flex2child">
+                        <paper-input name="training-name" label="Training Name" id="training-name" type="text"></paper-input>
+                    </div>
+            
+
+                </div>
+
+                <div class="horizontal-layout btn-center">
+                    <div class="horizontal-layout flexchild">
+                        <paper-button toggles raised class="custom indigo" type="submit" on-tap="submit">
+                            <iron-icon icon="icons:save"></iron-icon> &nbsp; Save </paper-button>
+                    </div>
+                  
+                </div>
+              </div>
+            </form>
+			        <px-modal id="modalCreateProjectSuccess" modalId="modalCreateTrgSuccess" btn-modal-positive="Close" modal-heading="Success">
+            <p>
+                <b id="msgCreateTrgSuccess">Training added successfully.</b>
+            </p>
+           
+        </px-modal>
+        <px-modal id="modalCreateTrgError" modalId="modalCreateTrgError" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateTrgError">Failed to add Training.</b>
+            </p>
+           
+        </px-modal>
+			
+			
+        </px-card>
+    </template>
+    <script>
+        var dataTable = null;
+        var tableElement = null;
+        Polymer({
+            is: 'create-training-view',
+            properties: {
+                loading: {
+                    type: Boolean,
+                    notify: true,
+                    value: false
+                },
+                showForm: {
+                    type: Boolean,
+                    notify: true,
+                    value: false
+                }
+            },
+            listeners: {
+            'iron-form-submit': '_handleSubmit'
+           },
+            _handleSubmit: function(e) {
+                this.submit();
+            },
+            ready: function() {
+
+            },
+            submit: function() {
+
+                var jsonData = this.$.trainingForm.serialize();
+
+          
+                console.log(jsonData);
+
+                this.loading = true;
+                this.$.AjaxPost.body = jsonData;
+                this.$.AjaxPost.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/projectdetail/";
+                this.$.AjaxPost.generateRequest();
+            },
+			
+		_handleAjaxPostResponse: function(request) {
+           
+            console.log(request.detail.response);
+            document.getElementById('msgCreateTrgSuccess').innerHTML = "Training added successfully.";
+            document.querySelector('#trainingForm').reset()
+
+            document.getElementById('modalCreateTrgSuccess').modalButtonClicked();
+        },
+        _handleAjaxPostError: function(err) {
+            
+            document.getElementById('msgCreateTrgError').innerHTML = "Error while adding training.";
+            document.getElementById('modalCreateTrgError').modalButtonClicked();
+            console.log("Error", err.detail);
+        }
+			
+			
+        });
+
+        function _submitTraining(event) {
+		console.log('event',Polymer.dom(event));
+            Polymer.dom(event).localTarget.parentElement.parentElement.submit();
+        };
+        
+		
+		window.addEventListener('WebComponentsReady', function(e) {
+        var trainingForm = document.querySelector('#trainingForm');
+        trainingForm.addEventListener('iron-form-submit', function(event) {
+        	
+        });
+
+       
+    });
+    </script>
+</dom-module>

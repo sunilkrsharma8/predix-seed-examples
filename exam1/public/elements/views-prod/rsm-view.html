@@ -1,0 +1,782 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-modal/px-modal.html">
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html" />
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html" />
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html" />
+<link rel="import" href="../../bower_components/polymer-font-awesome/polymer-font-awesome-all.html" />
+<link rel="import" href="../../elements/views/users-view.html">
+<link rel="import" href="../../elements/views/resource-view.html">
+<link rel="import" href="../../elements/views/assign-project-view.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+
+<dom-module id="rsm-view">
+    <style is="custom-style">
+  /*   #create_resource_modal_form {
+      width: 75%!important;
+  } */
+      
+
+    px-data-table::shadow .flex.px-data-table {
+        /*background: #f0ffff;*/
+        /*color: #a52a2a;*/
+    }
+
+    px-data-table{
+       --px-data-table-background-color-striped--even :red;
+    }
+    
+    px-modal{
+        --px-modal-content: {
+            width:75%;
+        };
+    };
+    px-modal{
+
+        --px-modal-positive-button: {
+            background-color: #525156;
+            color: white;
+			border-color: #525156;
+        };
+    }
+
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        .text-right{
+            text-align : right;
+        }
+
+
+        paper-button.indigo{
+            font-family: "GE Inspira Sans",sans-serif;
+            color: #fff;
+            background-color : #525156;      
+            margin-bottom: 2%;
+            --paper-button-raised-keyboard-focus: {
+                            background-color: #0a89a9 !important;
+                            color: white !important;
+            };
+        }
+
+        paper-button.custom:hover {
+            background-color: #525156;
+        }
+    </style>
+    <template>
+
+        <iron-ajax id="CreateResourceAjax" method="POST" content-type="application/json" handle-as="json" on-response="_handleCreateResourceAjaxResponse" on-error="_handleCreateResourceAjaxError" last-response="{{_createResourceResponse}}" >
+        </iron-ajax>
+
+        <iron-ajax id="updateResourceAjax" method="PUT" content-type="application/json" handle-as="json" on-response="resourceUpdated" on-error="errorUpdatingResource" last-response="{{updateResourceResponse}}" >
+        </iron-ajax>
+        
+        <iron-ajax id="fetchResources" method="GET" url="" content-type="application/json" handle-as="json" last-response="{{_resourcesContext}}" on-response='resoucresLoaded'>
+        </iron-ajax>
+
+         <iron-ajax id="fetchLinkedProjects" method="GET" url="" content-type="application/json" handle-as="json" last-response="{{_projectsContext}}" on-response='projectsLoaded' on-error="errorLoadingLinkedProjects">
+        </iron-ajax>
+
+        <iron-ajax id="deleteResource" method="DELETE" url="" content-type="application/json" handle-as="json" last-response="{{_resourcesDeleteContext}}" on-error="_handleResourceDeletedError" on-response='_handleResourceDeletedSuccess'>
+        </iron-ajax>
+        <iron-ajax id="createResourcePost" method="POST" content-type="application/json" handle-as="json" on-response="_handlecreateResourcePostResponse" on-error="_handlecreateResourcePostError">
+        </iron-ajax>
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+
+
+        <!-- <paper-button on-click="onTap">Polymer website</paper-button> -->
+        <px-modal class="u-1/3" id="create_resource_modal_form" modalId="create_resource_modal_form" btn-modal-positive="Save" btn-modal-negative="Cancel" modal-heading="Add New Resource" btn-modal-negative-clicked-event-name="btnModalClicked" btn-modal-positive-clicked-event-name="btnModalPositiveClicked">
+            <!-- <h2>hello this is a modal.</h2> -->
+             <resource-view id= "btn-edit" resource-data = "{{editResourceInfo}}" project-list=[[editResourceInfo.projectDetails]]></resource-view> 
+           
+        </px-modal>
+		
+		
+
+        <px-card header-text='Resource Details' id="general" icon="fa-table">
+
+         
+ 
+            <div class="row text-right"><paper-button class="custom indigo" id="add_resource_button" on-tap="onTap" raised><iron-icon icon="social:person-add"></iron-icon>&nbsp;&nbsp;Add Resource</paper-button></div>
+           <!--  <paper-button class="custom indigo" id="add_resource_button" on-tap="onTap" raised><iron-icon icon="social:person-add"></iron-icon>&nbsp;&nbsp;Add Resource</paper-button>
+            --> 
+            <!-- <paper-button class="custom indigo" id="delete_resource_button" on-tap="onDelete" raised disabled="{{showDeleteButton}}"><iron-icon icon="icons:delete"></iron-icon>&nbsp;&nbsp;Delete Resource</paper-button> -->
+
+            <px-data-table id="mytable" striped="true" table-data="{{_initialCustomerContext}}" filterable="true" enable-column-resize="false" show-column-chooser="true">
+               
+                <px-data-table-column type="html" label="Delete" name="deleteAction" ></px-data-table-column>
+                
+                <px-data-table-column type="html" label="Edit" name="editAction"></px-data-table-column>
+
+                <px-data-table-column label="SSO ID" name="sso_id" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Name" name="name" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Band" name="band" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Function" name="function" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Role" name="role" sortable="true" filterable="true"  type="string" max-column-character-width ="15" ></px-data-table-column>
+                <px-data-table-column label="Title" name="title" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Location" name="location" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Manager" name="manager" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Qualification" name="qualification" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="GE Experience" name="ge_Experience" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Total Experience" name="total_Experience" sortable="true" filterable="true"  type="string" max-column-character-width ="15"></px-data-table-column>
+                <px-data-table-column label="Key Skills" name="key_Skills" sortable="true" filterable="true"  type="string"></px-data-table-column>
+                <px-data-table-column label="p_N_L" name="p_N_L" sortable="true" filterable="true"  type="string"></px-data-table-column>
+
+             
+            </px-data-table>
+
+        </px-card>
+
+        <px-modal id="modalDeleteResourceWarning" modalId="modalDeleteResourceWarning" btn-modal-negative="No" btn-modal-positive="Yes" modal-heading="" modal-action-button-clicked="btnModalPositiveClicked">
+            <p>
+                <span id="msgDeleteWarning">Are you sure, you want to delete <span id="deleteCount">this resource</span> ?</span>
+            </p>
+        </px-modal>
+        <px-modal id="modalResourceDeleteSuccess" modalId="modalResourceDResourceDelete" btn-modal-positive="Close" modal-heading="" modal-action-button-clicked="btnModalPositiveClicked">
+            <p>
+                <span id="msgResourceDeleteSuccess">Resources deleted successfully.</span>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalResourceDeleteError" modalId="modalResourceDeleteError" btn-modal-positive="Close" modal-heading="Error" modal-action-button-clicked="btnModalPositiveClicked">
+            <p>
+                <span id="msgResourceDeleteError">Failed to delete resource.</span>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateResourceSuccess" modalId="modalCreateResourceSuccess" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgCreateResourceSuccess">Resource added successfully.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateResourceError" modalId="modalCreateResourceError" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateResourceError">Failed to add Resource.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+    </template>
+    <script>
+    Polymer({
+        is: 'rsm-view',
+        properties: {
+		    edit : {
+			  type: String,
+             
+              value: ''
+			},
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showTable: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showDeleteButton: {
+                type: Boolean,
+                notify: true,
+                value: true
+            },
+            _initialCustomerContext: {
+                type: Object,
+                computed: '_computeInitialCustomerContext(_resourcesContext)'
+            },
+            _projectsContext :{
+                type:Object,
+                value:{},
+                notify:true,
+            },    
+            showSearch: {
+                type: Boolean,
+                value: false
+            },
+            searchInput: {
+                type: String,
+                value: ''
+            },
+            deleteResourceId:{
+                type : Object,
+                value: 0
+            },
+            editResourceInfo : {
+                type : Object,
+                value: {}
+            },
+            columnHideStatus: {
+                type: Object,
+                value: {
+                    "action": false,
+                    "sso_id": false,
+                    "name": false,
+                    "band": true,
+                    "function": false,
+                    "role": false,
+                    "title": true,
+                    "location": false,
+                    "manager": true,
+                    "qualification": true,
+                    "ge_Experience": true,
+                    "total_Experience": true,
+                    "key_Skills": false
+                }
+            }
+        },
+        onTap: function() {
+            /*document.querySelector("users-view").action = 'addResource';
+            document.querySelector("users-view").resetResourceInfo();*/
+            // document.getElementById('errorCreateResourceMsg').style.display = 'none';
+            document.querySelector('resource-view #sso_id').disabled = false;
+			 document.querySelector('resource-view #manage_res').scrollIntoView();
+			 document.querySelector('resource-view #p_N_L').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #band').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #role').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #function').style.borderBottom = "1px solid gray";
+		     document.querySelector('resource-view #type').style.borderBottom = "1px solid gray";
+		     document.querySelector('resource-view #id').style.borderBottom = "1px solid gray";
+		     document.querySelector('resource-view #error_p_N_L').style.display = "none";
+		     document.querySelector('resource-view #error_band').style.display = "none";
+		     document.querySelector('resource-view #error_function').style.display = "none";
+		     document.querySelector('resource-view #error_role').style.display = "none";
+		     document.querySelector('resource-view #error_type').style.display = "none";
+		     document.querySelector('resource-view #error_id').style.display = "none";
+			 document.querySelector('resource-view #projectForm').reset();
+            document.getElementById('create_resource_modal_form').modalButtonClicked();
+			
+
+        },
+        onDelete: function() {
+            // debugger;
+            var selectedRows = document.querySelector('#mytable').selectedRows;
+            if(selectedRows.length == 1){
+                document.getElementById('deleteCount').innerHTML = "1 resource";
+            }else{
+                document.getElementById('deleteCount').innerHTML = selectedRows.length+" resources";
+            }
+            document.getElementById('modalDeleteResourceWarning').modalButtonClicked();
+        },
+        // Edition implementation
+        getUnits: function(aaa) {
+            // debugger;
+            // console.log(aaa);
+            return [{
+                "key": "Edit",
+                "val": "Edit",
+                "selected": "true"
+            }, {
+                "key": "Delete",
+                "val": "Delete"
+            }];
+        },
+        attached: function() {
+            console.log('attached');
+           /* console.log('attached',document.querySelector('rsm-view'));
+            debugger;
+            if(document.querySelector('rsm-view #mytable').tableData.length == 0){
+                document.querySelector('rsm-view').attributesReady();
+            }*/
+
+            /*this.async(function(){
+            var d = this.$$("#mytable"); 
+            console.log(d);
+            debugger;
+            },500);*/
+        },
+        ready: function() {
+            console.log('ready');
+            this.attributesReady();
+
+            this.$$('#modalDeleteResourceWarning').addEventListener('btnModalPositiveClicked', function(e) {
+                document.querySelector('rsm-view').deleteResourceById(document.querySelector('rsm-view').deleteResourceId);
+            });
+
+
+            this.$$('#create_resource_modal_form').modalActionButtonClicked = function(event){
+                // alert();
+                console.log(event.target.id, " in rsm-view");
+				if(document.querySelector("rsm-view #resourceForm #p_N_L").value == ''){
+					document.querySelector("rsm-view #resourceForm #p_N_L").style.borderBottom  = "2px solid red";
+					document.querySelector("rsm-view #resourceForm #error_p_N_L").style.display = "inline-block";
+					
+					}
+					if(document.querySelector("rsm-view #resourceForm #band").value == ''){
+					document.querySelector("rsm-view #resourceForm #band").style.borderBottom  = "2px solid red";
+					document.querySelector("rsm-view #resourceForm #error_band").style.display = "inline-block";
+					}
+					
+					if(document.querySelector("rsm-view #resourceForm #function").value == ''){
+					document.querySelector("rsm-view #resourceForm #function").style.borderBottom  = "2px solid red";
+					document.querySelector("rsm-view #resourceForm #error_function").style.display = "inline-block";
+					}
+					if(document.querySelector("rsm-view #resourceForm #type").value == ''){
+					document.querySelector("rsm-view #resourceForm #type").style.borderBottom  = "2px solid red";
+					document.querySelector("rsm-view #resourceForm #error_type").style.display = "inline-block";
+					}
+					if(document.querySelector("rsm-view #resourceForm #role").value == ''){
+					document.querySelector("rsm-view #resourceForm #role").style.borderBottom  = "2px solid red";
+					document.querySelector("rsm-view #resourceForm #error_role").style.display = "inline-block";
+					}
+                if(event.target.id === 'btnModalPositive'){
+
+                    var assignProjectForm = document.querySelector("#collapsibleForm #projectForm");
+                    assignProjectForm.querySelector("#nti_Allocation").required =false;
+                    assignProjectForm.querySelector("#npi_Allocation").required =false;
+                    assignProjectForm.querySelector("#rts_Allocation").required =false;
+                    assignProjectForm.querySelector("#req_Allocation").required =false;
+                    assignProjectForm.querySelector("#project_Type").required =false;
+                    assignProjectForm.querySelector("#id").required =false;
+
+                    document.getElementById('sso_id').disabled = false;
+
+                    if(document.querySelector("#btn-edit #resourceForm ").validate()){
+                        document.querySelector("rsm-view").submitResourceInfo();
+                    }
+
+                }else if(event.target.id === 'btnModalNegative'){
+                   // debugger;
+                   
+                   //resetting forms
+                    document.querySelector("resource-view #resourceForm").reset();
+                    document.querySelector("resource-view #projectForm").reset();
+
+                    document.getElementById('sso_id').disabled = false;
+
+                    //hide table when cancel is clicked
+                    document.getElementById("projecttable").tableData = [];            
+                    document.getElementById("projecttable").style.display = 'none';
+                    //closing modal
+                    document.getElementById('create_resource_modal_form').modalButtonClicked();
+           
+                }
+            }
+
+            this.$$('#modalResourceDeleteSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+                document.querySelector('#mytable').tableData = []
+                document.querySelector('rsm-view').attributesReady();
+            });
+
+        },
+        resoucresLoaded: function(request) {
+            this.loading = false;
+
+        },        
+        projectsLoaded : function(response) {
+            //console.log("projectsLoaded --", response);
+            this.loading = false;
+            console.log("_projectsContext in projectsLoaded ", document.querySelector('rsm-view')._projectsContext);
+            document.querySelector("rsm-view").editResourceInfo.projectDetails =document.querySelector('rsm-view')._projectsContext;         
+            console.log("editResourceInfo.projectDetails",document.querySelector('rsm-view').editResourceInfo.projectDetails);
+            document.querySelector("#btn-edit").setValues();   
+            
+        },
+        errorLoadingLinkedProjects: function(err) {
+            this.loading = false;
+            
+            console.log("Error ", err);
+        },
+        deleteResourceById : function(resource_id){
+            this.$.deleteResource.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/resources/"+resource_id;
+            this.$.deleteResource.generateRequest();
+        },
+        //An observer method where ajax request is generated
+        attributesReady: function() {
+            //set the value of loading to true just before generating request
+            this.showTable = false;
+            this.loading = true;
+            //this.$.fetchResources.url = "https://predix-jpa-pj.run.aws-usw02-pr.ice.predix.io/customers";
+            this.$.fetchResources.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/resources/";
+            this.$.fetchResources.generateRequest();
+
+            
+        },
+        fetchLinkedProjects :function(sso_id){
+            console.log("in fetchLinkedProjects rsm-view");
+             this.loading = true;
+            this.$.fetchLinkedProjects.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/projectByResId/"+sso_id;
+            this.$.fetchLinkedProjects.generateRequest();
+            
+             
+        },
+        submitResourceInfo: function() {
+            // this function gtng used
+            console.log("inside submit of rsm-  view");
+            var jsonData = {
+                    "resources" : {},
+             }
+            // console.log("Form ", form);
+            //  debugger;
+            var details = document.querySelector("#resourceForm");
+            console.log('details',details);
+            //  console.log("details ", details);
+            for (var j = 0; j < details.length; j++) {
+                var pInput = details[j];
+
+              // console.log('pInput', pInput);
+                 var inputValue = pInput.value;
+               // var label = pInput.name;
+                 var label = pInput.name;
+                //console.log('pInput.type',pInput.type);
+                if((pInput.type == "select-one" || pInput.type == "text" || pInput.type == "checkbox")&& pInput.type != "submit"){
+                    console.log('pInput.type',pInput.type);
+                   
+                   if(label =="") {
+                        //console.log("label == '' ", inputValue)
+                   }
+                   else{
+                      jsonData.resources[label] = inputValue;
+                   }
+              
+
+                }
+                // debugger
+                //  label = label.charAt(0).toLowerCase() + label.slice(1);
+            //    jsonData[j].resources[label] = inputValue;
+               
+            }
+           //  console.log('json', jsonData);
+             //console.log("projectDetails -- ", document.querySelector("resource-view").localProjectList);
+           projectDetail = document.querySelector("resource-view").localProjectList;
+            for(var i = 0; i < projectDetail.length; i++){
+                delete projectDetail[i].deleteAction;
+                delete projectDetail[i].projectAssignment;
+                delete projectDetail[i].project_Type;
+            }
+            jsonData.projectDetails = projectDetail;
+          //  debugger;
+
+            /* var projects = document.querySelector("#projectForm div.projFields");
+            console.log("proje", projects);
+            var projectData = {};
+            var inputValue ,pInput,label;
+            var pDetails = projects.querySelectorAll("paper-input");
+            console.log("pDetails", pDetails);
+
+            for (var i = 0; i < pDetails.length; i++) {
+               //  for (var j = 0; j < pDetails.length; j++) {
+                    pInput = pDetails[i];
+                    console.log("pInput", pInput)
+                    inputValue = pInput.querySelector("input").value;
+                     console.log("inputValue", inputValue);
+                     var label = pInput.name
+                    label = pInput.querySelector("label").innerHTML;
+                     console.log("label ", label);
+                    label = label.charAt(0).toLowerCase() + label.slice(1);
+                     console.log("label2 ", label);
+                    projectData[label] = inputValue;                    
+                     console.log("projectData[label] ", projectData[label]);
+            }
+                jsonData.projectDetails.push(projectData);
+           // }*/     
+             //console.log('edit',document.edit);
+			 if(document.edit === true){
+			 document.edit = false;
+			 var sso = jsonData.sso_id;
+             console.log('edit',document.edit);
+            this.$.updateResourceAjax.body = jsonData;
+            this.$.updateResourceAjax.url="https://rsm.run.aws-usw02-pr.ice.predix.io/updateReslinkProjs/";
+            this.$.updateResourceAjax.generateRequest();
+			 }else{
+			  console.log('crt',document.edit);
+			 this.$.CreateResourceAjax.body = jsonData;
+            this.$.CreateResourceAjax.url="https://rsm.run.aws-usw02-pr.ice.predix.io/createReslinkProjs/";
+            this.$.CreateResourceAjax.generateRequest();
+			  document.edit = false;
+			 }
+
+            console.log("jsondata ", jsonData);
+
+           /* var sso = jsonData.sso_id;
+
+            this.$.updateResourceAjax.body = jsonData;
+            this.$.updateResourceAjax.url="https://rsm.run.aws-usw02-pr.ice.predix.io/updateReslinkProjs/";
+            this.$.updateResourceAjax.generateRequest();*/
+
+          /*  this.$.CreateResourceAjax.body = jsonData;
+            this.$.CreateResourceAjax.url="https://rsm.run.aws-usw02-pr.ice.predix.io/createReslinkProjs/";
+            this.$.CreateResourceAjax.generateRequest();*/
+        },
+        _computeInitialCustomerContext: function(_resourcesContext) {
+            // console.log(_resources);
+            // var _resourcesContext = _resources;
+            if (_resourcesContext) {
+
+                for (var i = 0; i < _resourcesContext.length; i++) {
+
+                    var obj = JSON.stringify(_resourcesContext[i]);
+                    
+                    var projects = "";
+                    var projectListArr = [];
+                    if(_resourcesContext[i].projectDetails && _resourcesContext[i].projectDetails.length > 0){
+                        
+                        var projectList = _resourcesContext[i].projectDetails;
+                        for (var j = 0; j < projectList.length; j++) {
+                            projectListArr.push(projectList[j].projectAssignment);
+                            projectList[j].deleteAction = '<paper-button class="deleteRowBtn" onClick="deleteProjectRowClicked(' + projectList[j].project_id + ')"><iron-icon icon="icons:delete"></iron-icon></paper-button>';
+                        }
+                        projects = projectListArr.join();
+                    }else{
+                        projects = "--";
+                    }
+                    _resourcesContext[i].projects = projects;
+                    _resourcesContext[i].deleteAction = '<paper-button class="deleteRowBtn" onClick="deleteRowClicked('+_resourcesContext[i].sso_id+')"><iron-icon icon="icons:delete"></iron-icon></paper-button>';
+                    // _resourcesContext[i].editAction = '<a href="#/addresource/"><paper-button on-tap="onTap"><iron-icon icon="editor:mode-edit" onClick="editRowClicked('+_resourcesContext[i].sso_id+','+i+')" ></iron-icon></paper-button></a>';
+                    _resourcesContext[i].editAction = '<paper-button on-tap="onTap"><iron-icon icon="editor:mode-edit" onClick="editRowClicked('+_resourcesContext[i].sso_id+','+i+')" ></iron-icon></paper-button>';
+
+                }
+                this.showTable = true;
+                return _resourcesContext;
+            }
+        },
+        resourceUpdated: function(response) {
+		//console.log('response',response);
+             document.querySelector('#msgCreateResourceSuccess').innerHTML = "Resource Updated successfully.";
+                document.querySelector("resource-view form").reset();
+               
+                document.querySelector("resource-view").localProjectList = [];
+                document.querySelector('#projecttable').tableData = [];
+
+                document.querySelector('#create_resource_modal_form').modalButtonClicked();
+                
+                document.querySelector('#modalCreateResourceSuccess').modalButtonClicked();
+
+                if(document.querySelector("rsm-view")){
+                    document.querySelector("rsm-view #mytable").tableData = [];
+                    document.querySelector("rsm-view").attributesReady();
+                }
+
+                if(document.querySelector('all-projects-view')){
+                    document.querySelector('all-projects-view #projecttable').tableData = [];
+                    document.querySelector('all-projects-view').getProjects();
+                }
+        } ,
+        errorUpdatingResource : function(response) {
+            this.loading = false;
+
+            document.getElementById('errorCreateResourceMsg').style.display = 'block';
+            document.getElementById('msgCreateResourceError').innerHTML = "Error while updating resource.";
+            document.getElementById('errorCreateResourceMsg').scrollIntoView()
+            // document.getElementById('modalCreateResourceError').modalButtonClicked();
+            console.log("Error", err.detail);
+        },
+        _handleCreateResourceAjaxResponse: function(response) {
+            this.loading = false;
+            //console.log(response.detail.response);
+            var resp = document.querySelector("rsm-view")._createResourceResponse;
+            console.log("new response from create resource-- ",document.querySelector("rsm-view")._createResourceResponse);
+            if(resp != null){
+                 
+                   document.getElementById('errorCreateResourceMsg').style.display = 'block';
+                   document.getElementById('msgCreateResourceError').innerHTML = resp.message;
+                   document.getElementById('errorCreateResourceMsg').scrollIntoView();
+                   
+                   //hide error msg aft some seconds
+                   setTimeout(function(){  
+                       document.getElementById('errorCreateResourceMsg').style.display = 'none'; 
+                   }, 6000);
+               
+            }
+            else{
+                document.querySelector('#msgCreateResourceSuccess').innerHTML = "Resource created successfully.";
+                document.querySelector("resource-view form").reset();
+               
+                document.querySelector("resource-view").localProjectList = [];
+                document.querySelector('#projecttable').tableData = [];
+
+                document.querySelector('#create_resource_modal_form').modalButtonClicked();
+                
+                document.querySelector('#modalCreateResourceSuccess').modalButtonClicked();
+
+                if(document.querySelector("rsm-view")){
+                    document.querySelector("rsm-view #mytable").tableData = [];
+                    document.querySelector("rsm-view").attributesReady();
+                }
+
+                if(document.querySelector('all-projects-view')){
+                    document.querySelector('all-projects-view #projecttable').tableData = [];
+                    document.querySelector('all-projects-view').getProjects();
+                }
+            }
+        },
+        _handleCreateResourceAjaxError: function(err) {
+            this.loading = false;
+
+            document.getElementById('errorCreateResourceMsg').style.display = 'block';
+            document.getElementById('msgCreateResourceError').innerHTML = "Error while creating resource.";
+            document.getElementById('errorCreateResourceMsg').scrollIntoView()
+            // document.getElementById('modalCreateResourceError').modalButtonClicked();
+            console.log("Error", err);
+        },
+        _handlecreateResourcePostResponse: function(request) {
+            // debugger;
+            
+            console.log(request.detail.response);
+            document.getElementById('msgResourceDeleteSuccess').innerHTML = "Resource created successfully.";
+            document.getElementById('modalResourceDeleteSuccess').modalButtonClicked();
+        },
+        _handlecreateResourcePostError: function(err) {
+            // debugger;
+            document.getElementById('msgResourceDeleteError').innerHTML = "Error in creating resource.";
+            document.getElementById('modalResourceDeleteError').modalButtonClicked();
+            console.log("Error", err.detail);
+        },
+        _handleResourceDeletedSuccess: function(request) {
+            console.log(request.detail.response);
+            document.getElementById('msgResourceDeleteSuccess').innerHTML = "Resource deleted successfully";
+            document.getElementById('modalResourceDeleteSuccess').modalButtonClicked();
+
+            if(document.querySelector('all-projects-view')){
+                document.querySelector('all-projects-view #projecttable').tableData = [];
+                document.querySelector('all-projects-view').getProjects();
+            }
+        },
+        _handleResourceDeletedError: function(request) {
+            console.log(request.detail.response);
+            document.getElementById('msgResourceDeleteError').innerHTML = "Error while deleting resource.";
+            document.getElementById('modalResourceDeleteError').modalButtonClicked();
+        }
+
+    });
+
+    function deleteRowClicked(resource_id){
+        document.querySelector('rsm-view').deleteResourceId = resource_id;
+        document.getElementById('modalDeleteResourceWarning').modalButtonClicked();
+    }
+
+    function editRowClicked(resource,index){
+        
+        // document.querySelector("users-view").action = 'editResource';
+        // document.querySelector("users-view").resourceInfo = document.querySelector("rsm-view")._resourcesContext[index];
+        // document.getElementById('errorCreateResourceMsg').style.display = 'none';
+         console.log("resourceInfo ", resource, "index", index);
+         console.log("_resourcesContext[index] - ", document.querySelector("rsm-view")._resourcesContext[index]);
+            // document.querySelector("rsm-view").editResourceInfo = {'name':'satya'} ; 
+            document.querySelector("rsm-view").editResourceInfo = document.querySelector("rsm-view")._resourcesContext[index] ; 
+            console.log("sso-id ", document.querySelector("rsm-view").editResourceInfo.sso_id)
+            var sso_id = document.querySelector("rsm-view").editResourceInfo.sso_id;
+             
+            //fetch project for particular 
+            document.querySelector("rsm-view").fetchLinkedProjects(sso_id);
+           
+
+
+           document.edit = true;
+		   console.log('edittttt',document.edit);
+            console.log("editResource ", document.querySelector("rsm-view").editResourceInfo);
+			 document.querySelector('resource-view #manage_res').scrollIntoView();
+			 document.querySelector('resource-view #p_N_L').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #band').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #role').style.borderBottom = "1px solid gray";
+			 document.querySelector('resource-view #function').style.borderBottom = "1px solid gray";
+		     document.querySelector('resource-view #type').style.borderBottom = "1px solid gray";
+		     document.querySelector('resource-view #error_p_N_L').style.display = "none";
+		     document.querySelector('resource-view #error_band').style.display = "none";
+		     document.querySelector('resource-view #error_function').style.display = "none";
+		     document.querySelector('resource-view #error_role').style.display = "none";
+		     document.querySelector('resource-view #error_type').style.display = "none";
+            document.getElementById('create_resource_modal_form').modalButtonClicked();
+    }
+    
+    </script>
+	<script type="text/javascript">
+ window.onhashchange=function(){preventBack();}
+ function preventBack(){window.history.forward();}
+</script>
+</dom-module>
+
+<script type="text/javascript">
+    window.addEventListener('WebComponentsReady', function(e) {
+
+        // debugger;
+        
+        
+
+        /*document.getElementById('modalDeleteResourceWarning').addEventListener('btnModalPositiveClicked', function(e) {
+            document.querySelector('rsm-view').deleteResourceById(document.querySelector('rsm-view').deleteResourceId);
+        });
+
+        
+        document.getElementById('modalResourceDeleteSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+            document.querySelector('#mytable').tableData = []
+            document.querySelector('rsm-view').attributesReady();
+        });*/
+
+        document.getElementById('create_resource_modal_form').addEventListener('btnModalPositiveClicked', function(e) {
+        });
+
+        document.getElementById('create_resource_modal_form').addEventListener('btnModalNegativeClicked', function(e) {
+            console.log(e);
+            // alert("negative");
+            
+        });
+
+        document.getElementById("mytable").addEventListener("px-select-all-click", function(e) {
+            // var allSelectedRows = e.detail;
+            // console.log("Select/unselect all", allSelectedRows);
+            
+            var selectedRows = document.querySelector('#mytable').selectedRows
+            if(selectedRows.length > 0){
+                document.querySelector('#delete_resource_button').disabled = false;
+            }else{
+                document.querySelector('#delete_resource_button').disabled = true;
+            }
+        });
+
+        document.getElementById("mytable").addEventListener("px-row-click", function(e) {
+            var clickedRow = e.detail.row;
+            // console.log("Row clicked", clickedRow, " _selected: ", clickedRow._selected);
+            var selectedRows = document.querySelector('#mytable').selectedRows
+            if(selectedRows.length == 0){
+                // delete button currently disabled
+                if(!clickedRow._selected){
+                    document.querySelector('#delete_resource_button').disabled = false;
+                }else{
+                    document.querySelector('#delete_resource_button').disabled = true;
+                }
+            }else{
+                // delete button currently not disabled
+                if(selectedRows.length == 1){
+                    if(!clickedRow._selected){
+                        document.querySelector('#delete_resource_button').disabled = false;
+                    }else{
+                        document.querySelector('#delete_resource_button').disabled = true;
+                    }
+                }
+            }
+
+        });
+
+       /* document.getElementById('mytable').addEventListener('px-dropdown-value-changed', function(e) {
+            console.log(e);
+        });
+
+        document.getElementById('mytable').addEventListener('px-dropdown-click', function(e) {
+            console.log(e);
+        });*/
+
+        /*document.getElementById('create_resource_modal_form').triggerClicked = function(){
+            alert();
+        }
+*/
+
+        /*document.getElementById("mytable").addEventListener("px-row-click", function(e) {
+            alert();
+        });*/
+    });
+</script>

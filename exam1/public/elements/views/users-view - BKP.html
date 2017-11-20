@@ -1,0 +1,134 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html"/>
+<dom-module id="users-view">
+  <style>
+	px-data-table::shadow .flex.px-data-table{
+		background: #f0ffff;
+		/*color: #a52a2a;*/
+	}
+	.hidden{
+		display: none;
+	}
+	.user-details{
+		position: relative;
+		margin: 50px auto;
+		width: 400px;
+		height: 100px;
+	}
+	.user-details div {
+		position: absolute;
+		width: 100%;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+  </style>
+  <template id="user">
+    <iron-ajax
+      id="datatableAjax" 
+	  url="" 
+      last-response="{{_CustContext}}"
+	  on-response="showUser">
+    </iron-ajax>
+	<template is="dom-if" if="{{loading}}">
+		<paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+	</template>
+	<div class="user-details">
+		<div>
+			<label for="input1">User ID</label>
+			<input id="userId" type="text" placeholder="Enter User ID" class="text-input">
+			<input id="submit" on-click="getUser" class="form-field--inline btn btn--primary" type="submit" value="Submit">
+		</div>
+	</div>
+	<template is="dom-if" if="{{showTable}}">
+		<!--px-data-table id="mytable" table-data="{{_initialCustomerContext}}" table-columns="true" table-rows="true" hide-pagination-control>
+			<px-data-table-column type="html" label="ID" name="id"></px-data-table-column>
+			<px-data-table-column label="Name" on-click="editUser" name="name"></px-data-table-column>
+			<px-data-table-column label="Phone" name="phone"></px-data-table-column>
+			<px-data-table-column label="Date" name="tstamp"></px-data-table-column>
+		</px-data-table-->
+		<px-data-table selectable selected-rows="{{mySelectedRows}}" id="mytable" table-data="{{_initialCustomerContext}}" filterable="true" striped="true" show-column-chooser="true" table-columns="true" enable-column-reorder="true" enable-column-resize="true">
+			<px-data-table-column label="SSO" name="sso" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Name" name="name" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Band" name="band" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Function" name="function" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Role" name="role" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Title" name="title" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Location" name="location" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Manager" name="manager" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Qualification" name="qualification" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="GE_Experience" name="ge_Experience" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Total_Experience" name="total_Experience" editable="true" sortable="true" filterable="true"></px-data-table-column>
+			<px-data-table-column label="Key_Skills" name="key_Skills" editable="true" sortable="true" filterable="true"></px-data-table-column>
+		</px-data-table>
+	</template>
+
+  </template>
+  <script>
+	//console.log(document.querySelector("users-view"));   // It won't work
+	//console.log(document.querySelector("user-details")); // It won't work
+	var dataTable = null;
+	var tableElement = null;
+    Polymer({
+      is: 'users-view',
+      properties: {
+		_initialCustomerContext: {
+          type: Object,
+          computed: '_computeInitialCustomerContext(_CustContext)'
+        },
+		loading: {
+			type: Boolean,
+			notify: true,
+			value: false
+		},
+		showTable: {
+			type: Boolean,
+			notify: true,
+			value: false
+		},
+		userid:{
+			type:Object
+		}
+	  },
+      ready: function() {
+		//console.log(document.querySelector("users-view")); // It won't work
+		//console.log(document.querySelector("user-details")); // It won't work
+		document.addEventListener("px-cell-click", function(e) {
+			console.log(e);
+		});
+      },
+	  editUser: function(){
+		console.log("Edit the User........");
+		alert("Done....");
+	  },
+	  _computeInitialCustomerContext: function(_CustContext) {
+		console.log(Window);
+		//console.log(document);
+		if(_CustContext){
+			this.loading = false;
+			this.showTable = true;
+			return [_CustContext];
+		}
+      },
+	  
+	  getUser: function(){
+		//console.log(document.querySelector("users-view")); // It will work
+		//console.log(document.querySelector("user-details")); // It won't work
+		//console.log("ASDF");
+		
+		this.loading = true;
+		var id = document.getElementById("userId").value;
+		this.$.datatableAjax.url = "https://jpa-rsm.run.aws-usw02-pr.ice.predix.io/resources/" + id;
+		this.$.datatableAjax.generateRequest();
+	  },
+	  showUser: function(){
+		console.log("XXXXXXXXXXXX");
+	  }
+    });
+
+  </script>
+</dom-module>

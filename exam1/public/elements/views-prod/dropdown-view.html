@@ -1,0 +1,264 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html" />
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+<dom-module id="dropdown-view">
+    <style>
+    px-data-table::shadow .flex.px-data-table {
+        background: #f0ffff;
+        /*color: #a52a2a;*/
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .input-45 paper-input {
+        width: 35%;
+        margin: 0% 7%;
+        float: left;
+        display: block;
+    }
+    </style>
+    <style is="custom-style">
+    paper-button.custom:hover {
+        background-color: #0a89a9;
+    }
+    
+    paper-button.indigo {
+        background-color: #086e87;
+        margin-left: 35%;
+        width: 20%;
+        margin-top: 5%;
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+            background-color: #0a89a9 !important;
+            color: white !important;
+        }
+        ;
+    }
+    </style>
+    <template id="user">
+        <!-- <iron-ajax id="AjaxPost" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
+        </iron-ajax> -->
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+        <form is="iron-form" id="projectForm">
+
+        <iron-collapse id="collapse">
+                      <div>Content goes here...</div>
+                        <paper-input name="projectAssignment" label="Project Assignment" value="" required auto-validate></paper-input>
+                    <paper-input name="nti_Allocation" label="NTI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="npi_Allocation" label="NPI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="rts_Allocation" label="RTS Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="req_Allocation" label="REQ Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    </iron-collapse>
+
+            <px-card header-text='Create Project' id="general">
+
+                <div id="errorCreateProjectMsg">
+                    <span id="msgCreateProjectError">Error while creating</span>
+                </div>
+                <!-- <paper-input id="primary" name="ProjectId" label="Project Id" readonly value="123"></paper-input> -->
+                <div class="input-45">
+                    <paper-input name="project_Type" label="Project Type" value="" required auto-validate></paper-input>
+                    <paper-input name="projectAssignment" label="Project Assignment" value="" required auto-validate></paper-input>
+                    <paper-input name="nti_Allocation" label="NTI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="npi_Allocation" label="NPI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="rts_Allocation" label="RTS Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-input name="req_Allocation" label="REQ Allocation" value="" required auto-validate pattern="[0-9]*" error-message="numbers only!"><div suffix>%</div></paper-input>
+                    <paper-dropdown-menu label="Dinosaurs">
+                      <paper-listbox class="dropdown-content">
+                        <paper-item>allosaurus</paper-item>
+                        <paper-item>brontosaurus</paper-item>
+                        <paper-item>carcharodontosaurus</paper-item>
+                        <paper-item>diplodocus</paper-item>
+                      </paper-listbox>
+                    </paper-dropdown-menu>
+
+
+
+                    <paper-dropdown-menu label="I Love:">
+    <paper-menu class="dropdown-content" selectedItem="Heroes Reborn">
+      <paper-item>Teen Wolf</paper-item>
+      <paper-item>Heroes Reborn</paper-item>
+      <paper-item>Once Upon a Time</paper-item>
+    </paper-menu>
+  </paper-dropdown-menu>
+
+  <paper-dropdown-menu on-iron-select="_logSelected">
+        <paper-listbox class="dropdown-content" selected="{{_getSelectedEmployee(_toggled)}}" attr-for-selected="name">
+          <template is="dom-repeat" items="{{employees}}">
+            <paper-item id="[[item.id]]">[[item.name]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+
+<paper-dropdown-menu on-iron-select="_logSelected">
+        <paper-listbox class="dropdown-content" selected="{{_getSelectedEmployee(_toggled)}}" attr-for-selected="name">
+          <template is="dom-repeat" items="{{employees}}">
+            <paper-item id="[[item.id]]">[[item.name]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+                </div>
+                
+                <!-- <paper-button raised class="custom indigo" type="submit" onclick="_submitProject(event)">
+                    <iron-icon icon="icons:save"></iron-icon> &nbsp; Save </paper-button> -->
+            </px-card>
+        </form>
+        <px-modal id="modalCreateProjectSuccess123" modalId="modalCreateProjectSuccess123" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgCreateProjectSuccess">Project created successfully.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateProjectError123" modalId="modalCreateProjectError123" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateProjectError">Failed to add project.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+    </template>
+    <script>
+    var dataTable = null;
+    var tableElement = null;
+    Polymer({
+        is: 'dropdown-view',
+        properties: {
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showForm: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            selectedEmployee: {
+                type: Object,
+                value: () => {}
+              },
+              _toggled: {
+                type: Boolean,
+                value: false,
+              },
+              employees: {
+                type: Array,
+                value: () => [
+                  { id: 1, name: 'John' },
+                  { id: 2, name: 'Alice' },
+                  { id: 3, name: 'Bob' }
+                ]
+              }
+        },
+        listeners: {
+            'iron-form-submit': '_handleSubmit'
+        },
+        _handleSubmit: function(e) {
+            // Do something
+            this.submit();
+        },
+        ready: function() {
+            /*
+            this.$.polymerForm.addEventListener('iron-form-presubmit', function(event) {
+            	console.log("Before Submit:");
+            	console.log(event);
+            });
+            this.$.polymerForm.addEventListener('iron-form-submit', function(event) {
+            	console.log("During Submit:");
+            	//console.log("event",event);
+            });*/
+        },
+        _getSelectedEmployee: function() {
+      console.log('getting sel emp');
+      return this.selectedEmployee;
+    },
+    _getItem: function(item, record) {
+      console.log('getting item', item, record);
+      return item;
+    },
+    _getItemName: function(item, record) {
+      console.log('getting name', item, record);
+      return item.name;
+    },
+    _logSelected: function(e) {
+      console.log('selectedEmployee', this.selectedEmployee);
+    },
+
+    _setEmployeeName: function() {
+      this._toggled = !this._toggled;
+      this.set('employees.2.name', this._toggled ? 'Tony' : 'Jake');
+    },
+    _setSelectedEmployee: function() {
+      this.selectedEmployee = this.employees[2];
+    },
+  
+        submit: function() {
+
+            var jsonData = this.$.projectForm.serialize();
+
+            jsonData.npi_Allocation = parseInt(jsonData.npi_Allocation);
+            jsonData.nti_Allocation = parseInt(jsonData.nti_Allocation);
+            jsonData.req_Allocation = parseInt(jsonData.req_Allocation);
+            jsonData.rts_Allocation = parseInt(jsonData.rts_Allocation);
+            console.log(jsonData);
+
+
+            this.loading = true;
+            this.$.AjaxPost.body = jsonData;
+            this.$.AjaxPost.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/projectdetail/";
+            this.$.AjaxPost.generateRequest();
+        },
+        /*_handleAjaxPostResponse: function(request) {
+            this.loading = false;
+            console.log(request.detail.response);
+            document.getElementById('msgCreateProjectSuccess').innerHTML = "Project created successfully.";
+            document.querySelector('#projectForm').reset();
+
+            if(document.querySelector('all-projects-view')){
+        		document.querySelector('all-projects-view #projecttable').tableData = [];
+        		document.querySelector('all-projects-view').getProjects();
+            }
+
+            document.getElementById('modalCreateProjectSuccess').modalButtonClicked();
+        },
+        _handleAjaxPostError: function(err) {
+            this.loading = false;
+            document.getElementById('msgCreateProjectError').innerHTML = "Error while creating project.";
+            document.getElementById('modalCreateProjectError').modalButtonClicked();
+            console.log("Error", err.detail);
+        }*/
+    });
+
+    function _submitProject(event) {
+        Polymer.dom(event).localTarget.parentElement.parentElement.submit();
+    }
+
+    window.addEventListener('WebComponentsReady', function(e) {
+        var projectForm = document.querySelector('#projectForm');
+        projectForm.addEventListener('iron-form-submit', function(event) {
+        	// alert();
+            // this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+        });
+
+        /*document.getElementById('modalCreateProjectSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+            // debugger;
+            document.querySelector('#projectForm').reset()
+        });*/
+    });
+    </script>
+</dom-module>

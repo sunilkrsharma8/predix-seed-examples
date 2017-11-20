@@ -1,0 +1,265 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html" />
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+<dom-module id="assign-project-view">
+    <style>
+    px-data-table::shadow .flex.px-data-table {
+        background: #f0ffff;
+        /*color: #a52a2a;*/
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .input-45 paper-input {
+        width: 35%;
+        margin: 0% 7%;
+        float: left;
+        display: block;
+    }
+    </style>
+    <style is="custom-style">
+        paper-button.custom:hover {
+            background-color: #525156;
+        }
+        
+        paper-button.indigo {
+            background-color: #525156;
+            margin-left: 35%;
+            width: 15%;
+            margin-top: 5%;
+            color: white;
+            --paper-button-raised-keyboard-focus: {
+                background-color: #0a89a9 !important;
+                color: white !important;
+            }
+            ;
+        }
+       
+    </style>
+    <template id="user">
+        <!-- <iron-ajax id="AjaxPost" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
+        </iron-ajax> -->
+        <iron-ajax id="fetchProjects" method="GET" content-type="application/json" handle-as="json" last-response="{{allProjects}}" on-response="_handleFetchProjectsResponse" on-error="_handleFetchProjectsError">
+        </iron-ajax>
+
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+        <form is="iron-form" id="projectForm" novalidate>
+            <px-card id="general">
+
+                <div id="errorCreateProjectMsg" style="display:none;">
+                    <span id="msgCreateProjectError">Error while creating</span>
+                </div>
+                <!-- <paper-input id="primary" name="ProjectId" label="Project Id" readonly value="123"></paper-input> -->
+                <div class="input-45 projFields" >
+                
+                    <rsm-combobox></rsm-combobox>
+                     <paper-input name="nti_Allocation" id="nti_Allocation" label="NTI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="Input must be a number."><div suffix>%</div></paper-input>
+                    <paper-input name="npi_Allocation" id="npi_Allocation" label="NPI Allocation" value="" required auto-validate pattern="[0-9]*" error-message="Input must be a number."><div suffix>%</div></paper-input>
+                    <paper-input name="rts_Allocation" id="rts_Allocation" label="RTS Allocation" value="" required auto-validate pattern="[0-9]*" error-message="Input must be a number."><div suffix>%</div></paper-input>
+                    <paper-input name="req_Allocation" id="req_Allocation" label="REQ Allocation" value="" required auto-validate pattern="[0-9]*" error-message="Input must be a number."><div suffix>%</div></paper-input>
+                    
+                    <template is="dom-if" if="{{isCollapsible}}">  
+                        <paper-button raised class="custom indigo" type="submit" onclick="_submitProject(event)">
+                            <iron-icon icon="icons:create-new-folder"></iron-icon> &nbsp; Add </paper-button>
+                    </template>
+                </div>
+            </px-card>
+        </form>
+
+        <px-modal id="modalCreateProjectSuccess123" modalId="modalCreateProjectSuccess123" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgCreateProjectSuccess">Project created successfully.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+        <px-modal id="modalCreateProjectError123" modalId="modalCreateProjectError123" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgCreateProjectError">Failed to add project.</b>
+            </p>
+            <!-- <p>Lorem ipsum dolor sit amet, </p> -->
+        </px-modal>
+    </template>
+    <script>
+    var dataTable = null;
+    var tableElement = null;
+    Polymer({
+        is: 'assign-project-view',
+        properties: {
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showForm: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            isCollapsible: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            allProjects :{
+                type:Object,
+                value:{},
+                notify:true,
+            }
+        },
+        listeners: {
+            'iron-form-submit': '_handleSubmit'
+        },
+        _handleSubmit: function(e) {
+            // Do something
+            // this.submit();
+        },
+        getProjects: function() {
+
+            this.loading = true;
+            this.$.fetchProjects.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/project/";
+            this.$.fetchProjects.generateRequest();
+
+            console.log("getProjects called",  document.querySelector('assign-project-view').allProjects);
+        },
+        ready: function() {
+		
+		console.log('fsdddddddddddddd');
+		 
+            /*
+            this.$.polymerForm.addEventListener('iron-form-presubmit', function(event) {
+                console.log("Before Submit:");
+                console.log(event);
+            });
+            this.$.polymerForm.addEventListener('iron-form-submit', function(event) {
+                console.log("During Submit:");
+                //console.log("event",event);
+            });*/
+        },
+        submit: function() {
+            /*alert("Called project submit");
+            var jsonData = this.$.projectForm.serialize();
+
+            jsonData.npi_Allocation = parseInt(jsonData.npi_Allocation);
+            jsonData.nti_Allocation = parseInt(jsonData.nti_Allocation);
+            jsonData.req_Allocation = parseInt(jsonData.req_Allocation);
+            jsonData.rts_Allocation = parseInt(jsonData.rts_Allocation);
+            console.log(jsonData);
+
+
+            this.loading = true;
+            this.$.AjaxPost.body = jsonData;
+            this.$.AjaxPost.url = "https://rsm.run.aws-usw02-pr.ice.predix.io/project/";
+            this.$.AjaxPost.generateRequest();*/
+        },
+         _handleFetchProjectsResponse: function(request) {
+         //   console.log(request.detail.response);
+         //   console.log("allProjects  ", document.querySelector('assign-project-view').allProjects)
+            var projectsList = document.querySelector('assign-project-view').allProjects;
+            var selectProjName = document.createElement("select");
+            selectProjName.id="ddlProjectName";
+            selectProjName.required="true";
+            projectsList.forEach(function(element){
+               //console.log("element  - ", element);
+               var opt = document.createElement("option");
+               opt.value= element.projectAssignment;
+               opt.innerHTML = element.projectAssignment; // whatever property it has
+               //console.log("OPT  - ",opt);
+               // then append it to the select element               
+               selectProjName.appendChild(opt);
+              // console.log("selectProjName ", selectProjName);
+              // newSelect.appendChild(opt);
+            })
+
+           var selectProjType = document.createElement("select");
+            selectProjType.id="ddlProjectType";
+            selectProjType.required="true";
+            projectsList.forEach(function(element){
+               //console.log("element  - ", element);
+               var opt = document.createElement("option");
+               opt.value= element.project_Type;
+               opt.innerHTML = element.project_Type; // whatever property it has
+              // console.log("OPT  - ",opt);
+
+               // then append it to the select element               
+               selectProjType.appendChild(opt);
+              // console.log("selectProjType ", selectProjType);
+              // newSelect.appendChild(opt);
+            })
+
+
+            var divDDL = this.$$("#ddlDivProjectName");
+            divDDL.appendChild(selectProjName);
+            divDDL.appendChild(selectProjType);
+            console.log("divDDL ", divDDL);
+            // this.showTable = true;
+            // this.loading = false;
+            // document.getElementById('msg').innerHTML = "Success";
+            // document.getElementById('modal').modalButtonClicked();
+        },
+        _handleFetchProjectsError: function(err) {
+            this.showTable = true;
+            this.loading = false;
+            // document.getElementById('msg').innerHTML = "Error";
+            // document.getElementById('modal').modalButtonClicked();
+            console.log("Error", err.detail);
+        },
+       /* resetProjectDetails:function() {
+           
+        }*/
+        /*_handleAjaxPostResponse: function(request) {
+            this.loading = false;
+            console.log(request.detail.response);
+            document.getElementById('msgCreateProjectSuccess').innerHTML = "Project created successfully.";
+            document.querySelector('#projectForm').reset();
+
+            if(document.querySelector('all-projects-view')){
+                document.querySelector('all-projects-view #projecttable').tableData = [];
+                document.querySelector('all-projects-view').getProjects();
+            }
+
+            document.getElementById('modalCreateProjectSuccess').modalButtonClicked();
+        },
+        _handleAjaxPostError: function(err) {
+            this.loading = false;
+            document.getElementById('msgCreateProjectError').innerHTML = "Error while creating project.";
+            document.getElementById('modalCreateProjectError').modalButtonClicked();
+            console.log("Error", err.detail);
+        }*/
+    });
+
+    function _submitProject(event) {
+
+	  if(document.querySelector("assign-project-view #projectForm #id").value == ''){
+					document.querySelector("assign-project-view #projectForm #id").style.borderBottom  = "2px solid red";
+					document.querySelector("assign-project-view #projectForm #error_id").style.display = "inline-block";
+		}
+        event.currentTarget.closest('assign-project-view #projectForm').submit();
+    }
+
+
+    window.addEventListener('WebComponentsReady', function(e) {
+        var projectForm = document.querySelector('#projectForm');
+        projectForm.addEventListener('iron-form-submit', function(event) {
+            // alert();
+            // this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+        });
+       // document.querySelector('assign-project-view').getProjects();
+       
+        /*document.getElementById('modalCreateProjectSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+            // debugger;
+            document.querySelector('#projectForm').reset()
+        });*/
+    });
+    </script>
+</dom-module>

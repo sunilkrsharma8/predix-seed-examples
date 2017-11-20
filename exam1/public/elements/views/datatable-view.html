@@ -1,0 +1,49 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html" />
+<dom-module id="datatable-view">
+    <style>
+    px-data-table::shadow .flex.px-data-table {
+        background: #f0ffff;
+        /*color: #a52a2a;*/
+    }
+    </style>
+    <template>
+        <iron-ajax id="datatableAjax" url="https://predix-jpa-pj6-satish-test.run.aws-usw02-pr.ice.predix.io/customers" last-response="{{_CustContext}}">
+        </iron-ajax>
+        <!--
+  <px-data-table table-data="{{_initialCustomerContext}}"></px-data-table>
+  -->
+        <px-data-table table-data="{{_initialCustomerContext}}" filterable="true" striped="true" table-columns="true" show-column-chooser="true" enable-column-reorder="true" enable-column-resize="true" table-rows="true">
+            <!-- <px-data-table-column label="ID" name="id" sortable="true" filterable="true"></px-data-table-column>
+            <px-data-table-column label="Name" name="name" sortable="true" filterable="true"></px-data-table-column>
+            <px-data-table-column label="Phone" name="phone" sortable="true" filterable="true"></px-data-table-column>
+            <px-data-table-column label="Date" name="tstamp" sortable="true" filterable="true"></px-data-table-column> -->
+        </px-data-table>
+    </template>
+    <script>
+    Polymer({
+        is: 'datatable-view',
+        properties: {
+            _initialCustomerContext: {
+                type: Object,
+                computed: '_computeInitialCustomerContext(_CustContext)'
+            }
+        },
+        ready: function() {
+            this.$.datatableAjax.generateRequest();
+        },
+        _computeInitialCustomerContext: function(_CustContext) {
+            return _CustContext;
+        },
+    });
+
+    window.addEventListener('WebComponentsReady', function(e) {
+        document.getElementById("mytable").addEventListener("px-row-click", function(e) {
+            alert();
+        });
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,923 @@
+<!--link rel="import" href="../../bower_components/px-sample-cards/blank-card.html" -->
+<link rel="import" href="../../bower_components/px-context-browser/px-context-browser.html">
+<link rel="import" href="../../bower_components/px-deck-selector/px-deck-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/px-card/px-card.html" />
+<link rel="import" href="../../bower_components/px-modal/px-modal.html">
+<link rel="import" href="../../bower_components/px-data-table/px-data-table.html" />
+<link rel="import" href="../../elements/views/assign-project-view.html">
+<link rel="import" href="../../elements/rsm-app/px-form.html">
+<link rel="import" href="../../elements/views/rsm-combobox.html">
+
+<dom-module id="resource-view">
+    <style is="custom-style">
+    px-data-table::shadow .flex.px-data-table {
+        /*background: #f0ffff;*/
+        /*color: #a52a2a;*/
+    }
+
+ 
+    .header-red {
+        text-align: center !important;
+        color: red !important;
+    }
+    
+    #errorCreateResourceMsg {
+        color: #ca5153;
+        padding-top: 10px;
+        display: block;
+        height: 30px;
+        font-size: 15px;
+        text-align: center;
+        background-color: #fde4e1;
+    }
+	#errorAddProjectMsg{
+	    color: #ca5153;
+        padding-top: 10px;
+        display: block;
+        height: 30px;
+        font-size: 15px;
+        text-align: center;
+        background-color: #fde4e1;
+	}
+    
+    .hidden {
+        display: none;
+    }
+    
+    .user-details {
+        position: relative;
+        margin: 10px auto;
+        width: 400px;
+        height: 100px;
+    }
+    
+    .user-details div {
+        position: absolute;
+        width: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .input-45 paper-input {
+        width: 35%;
+        margin: 0% 7%;
+        float: left;
+        display: block;
+    }
+    
+    .input-45 label hr {
+        margin: 0% 7% 1% 7%;
+        width: 86%;
+        overflow: hidden;
+        color: red;
+        padding-top: 2%;
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+    
+    paper-button.indigo {
+        background-color: #086e87;
+        width: 20%;
+        margin-top: 5%;
+        color: white;
+        --paper-button-raised-keyboard-focus: {
+            background-color: #0a89a9 !important;
+            color: white !important;
+        }
+        
+    }
+    .input-45 .field-container {
+        width: 35%;
+        margin: 0% 7%;
+        float: left;
+        display: block;
+		
+        
+    }
+	.error{
+			    display: none;
+				
+				color: #dd2c00;
+				-webkit-font-smoothing: antialiased;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 12px;
+				font-weight: 400;
+				letter-spacing: 0.011em;
+				line-height: 20px;
+				position: absolute;
+				left: 0;
+				right: 0;
+		
+		}
+    .field-container {
+            position: relative;
+            display: block;
+            padding-top: 28px;
+            min-width: 324px;
+            width: 324px;
+            margin-right: 24px;
+    
+        }
+        
+        .field {
+            display: block;
+            width: 100%;
+            padding: 0px;
+            border: none;
+            border-bottom: 1px solid #737373;
+            -webkit-font-smoothing: antialiased;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            color:gray;
+            
+            
+        }
+        
+        .field:focus {
+            color:gray;
+			border-bottom: 2px solid #3f51b5;
+        }
+        
+        .floating-label {
+            position: absolute;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            background-color: transparent;
+            -webkit-transition: 0.2s ease-in-out;
+            transition: 0.2s ease-in-out;
+            -webkit-font-smoothing: antialiased;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            line-height: 20px;          
+        }
+        
+        .field:valid + .floating-label {
+            opacity: 1;
+            top: 0px;
+            color: #737373;
+			margin-top:7px;
+        }
+        
+        .field:focus + .floating-label {
+            color: #3f51b5;
+			    font-weight: 600;
+			
+        }
+        
+        .field-underline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            /*bottom: -5px;
+           border-bottom: 1px solid #737373;*/
+            z-index: -1;
+            padding: 10px 10px 0;
+        }
+        
+        .field:focus + .floating-label + .field-underline {
+            border-color: #3f51b5;
+        }
+        
+        select {
+            height: 24px;
+            line-height: 24px;
+            width: 50%;
+            border: 0px;
+            border-bottom: 1px solid;
+            color:gray;
+        }
+        
+        option:checked {
+            background-color: linear-gradient(#5A2569, #5A2569);
+        }
+        /* turn it off completely */
+        
+        select:hover {
+            outline: none
+        }
+        
+        select:focus {
+            border-bottom: 2px solid #3f51b5;
+			color:gray;
+            outline: none
+        }
+        
+        select:invalid {
+            color: gray;
+        }
+        /* make it red instead (with with same width and style) */
+        
+        select:active {
+            border: 0px;
+            border-bottom: 2px solid #3f51b5;
+            outline: none
+        }
+        
+        option:checked {
+            outline: none;
+        }
+  
+        option{
+        background:#ffffff;
+        color:#000;
+        
+        }
+    </style>
+    <template id="user">
+        <iron-ajax id="rsmAjax" url="" last-response="{{_rsmResponse}}" on-response="showUser">
+        </iron-ajax>
+        <iron-ajax id="CreateResourceAjax1" method="POST" content-type="application/json" handle-as="json" on-response="_handleCreateResourceAjaxResponse" on-error="_handleCreateResourceAjaxError">
+        </iron-ajax>
+
+       
+
+        <template is="dom-if" if="{{loading}}">
+            <paper-progress value="10" indeterminate="true" style="width:100%;"></paper-progress>
+        </template>
+      
+    
+        <px-card id="manage_res">
+            <div id="errorCreateResourceMsg" style="display: none;">
+               <span id="msgCreateResourceError">Error while creating</span>
+           </div>
+            <form is="iron-form" method="get" action="/" id="resourceForm" novalidate>
+                <px-card  id="res_details">
+
+                    <!-- <paper-input id="primary" name="ProjectId" label="Project Id" readonly value="123"></paper-input> -->
+                    <px-card-header header-text='Resource Details' chevron="true" on-click="collapseResourceDetails"></px-card-header>
+                    <iron-collapse opened id="collapseResource">
+                        <div class="input-45">
+                            
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid name" name="name" label="Name" id="name" value=""></paper-input>
+                            
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid sso Id" name="sso_id" label="SSO" id="sso_id" value=""></paper-input>
+
+                            <!-- <paper-input required auto-validate name="p_N_L" label="PNL" id="p_N_L" value=""></paper-input>
+                            <paper-input required auto-validate name="band" pattern="[A-Za-z ]*" error-message=" Please enter valid band" label="Band" id="band" value=""></paper-input> -->
+
+				
+                        <div class="field-container">
+                            <select class="field" id="p_N_L" name="p_N_L" auto-validate on-change = "updateStyle">
+                               <option value="" class="" disabled selected>PNL</option>
+                                <option value="PE" class="" >PE</option>
+                                <option value="BN" class="" >BN</option>
+                                <option value="MS" class="" >MS</option>
+                                <option value="IT" class="" >IT</option>
+                                <option value="P1" class="" >P1</option>
+                            </select>
+                            <label class="floating-label">PNL</label>
+							<div class="error" id="error_p_N_L">Please select P_N_L</div>
+                            <div class="field-underline"></div>
+                         </div>     
+                        <div class="field-container">
+                            <select class="field" id="band" name="band" on-change = "updateStyle">
+                               <option value="" class="" disabled selected>Band</option>
+                                <option value="India" class="" >India</option>
+                                <option value="Global" class="" >Global</option>
+                            </select>
+                            <label class="floating-label">Band</label>
+							<div class="error" id="error_band">Please select band</div>
+                            <div class="field-underline"></div>
+                        </div>
+                    </div>
+                        </div>
+                    </iron-collapse>
+                </px-card>
+                <px-card  id="profile_info">
+                    <px-card-header header-text='Profile Information' chevron="true" on-click="collapseProfileDetails"></px-card-header>
+                    <iron-collapse opened id="collapseProfile">
+                        <div class="input-45">
+                            <paper-input required auto-validate pattern="[A-Za-z\. ]*" error-message=" Please enter valid title" id="title" name="title" label="Title" value=""></paper-input>
+                            <!-- <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid type" id="type" name="type" label="Type" value=""></paper-input> -->
+                             <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid manager" id="manager" name="manager" label="Manager" value=""></paper-input>
+                            <div class="field-container">
+                                <select class="field" id="type" name="type" on-change = "updateStyle">
+                                   <option value="" class="" disabled selected>Type</option>
+                                    <option value="FTE" class="" >FTE</option>
+                                </select>
+                                <label class="floating-label">Type</label>
+								<div class="error" id="error_type">Please select type</div>
+                                <div class="field-underline"></div>
+                             </div>
+                                 
+                              <div class="field-container">
+                                <select class="field" id="function" name="function" on-change = "updateStyle" >
+                                   <option value="" class="" disabled selected>Function</option>
+                                    <option value="Software" class="" >Software</option>
+                                    <option value="Hardware" class="" >Hardware</option>
+                                    <option value="Firmware" class="" >Firmware</option>
+                                    <option value="Project Engineering" class="" >Project Engineering</option>
+                                </select>
+                                <label class="floating-label">Function</label>
+								<div class="error" id="error_function">Please select function</div>
+                                <div class="field-underline"></div>
+                             </div>
+                           
+                       
+                            <!--<paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid role" id="role" name="role" label="Role" value=""></paper-input>-->
+                            <div class="field-container">
+                                <select class="field" id="role" name="role" on-change = "updateStyle" >
+                                   <option value="" class="" disabled selected>Role</option>
+                                    <option value="Dev" class="" >Dev</option>
+                                    <option value="QA" class="" >QA</option>
+                                    <option value="FM" class="" >FM</option>
+                                    <option value="RM" class="" >RM</option>
+                                    <option value="CTH" class="" >CTH</option>
+                                    <option value="Project Engineer" class="" >Project Engineer</option>
+                                    <option value="System Engineer" class="" >System Engineer</option>
+                                </select>
+                                <label class="floating-label">Role</label>
+								<div class="error" id="error_role">Please select role</div>
+                                <div class="field-underline"></div>
+                             </div>
+                            <!-- <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid function" id="function" name="function" label="Function" value=""></paper-input>
+                           
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid role" id="role" name="role" label="Role" value=""></paper-input> -->
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid location" id="location" name="location" label="Location" value=""></paper-input>
+                        </div>
+                    </iron-collapse>
+                </px-card>
+                <px-card   id="bg_details">
+                     <px-card-header header-text='Background' chevron="true" on-click="collapseBGDetails"></px-card-header>
+                    <iron-collapse opened id="collapseBG">
+                        <div class="input-45">
+                            <paper-input required auto-validate pattern="[A-Za-z\- ]*" error-message=" Please enter valid qualification" id="qualification" name="qualification" label="Qualification" value=""></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid Experience" id="ge_Experience" name="ge_Experience" label="GE Experience" value=""></paper-input>
+                            <paper-input required auto-validate pattern="[A-Za-z ]*" error-message=" Please enter valid Skills" id="key_Skills" name="key_Skills" label="Key Skills" value=""></paper-input>
+                            <paper-input required auto-validate pattern="[0-9]*" error-message=" Please enter valid Experience" id="total_Experience" name="total_Experience" label="Total Experience" value=""></paper-input>
+                        </div>
+                    </iron-collapse>                   
+                </px-card>
+                   
+                <px-card  id="projectDetails">
+
+                    <px-card-header chevron="true" header-text='PROJECT DETAILS' on-click="assignProjectCollapseToggle">
+
+                    </px-card-header>
+                     <div id="errorCreateResourceMsg" style="display: none">
+                       <span id="msgCreateResourceError"></span>
+                     </div>
+                    <!-- <paper-button id="addToCart" raised class="custom indigo" style="margin-top:0%" on-click="assignProjectModalToggle"><iron-icon icon="icons:create-new-folder"></iron-icon> &nbsp; Add </paper-button> -->
+                    <!-- <paper-button id="" raised class="custom indigo" style="margin-top:0%" ><iron-icon icon="icons:create-new-folder"></iron-icon> &nbsp; Toggle Collapse </paper-button> -->
+
+                   <!--  <px-modal class="u-1/3" id="assign_project_modal_form" modalId="assign_project_modal_form" btn-modal-positive="Save" btn-modal-negative="Cancel" modal-heading="Assign New Project" btn-modal-negative-clicked-event-name="btnModalClicked" btn-modal-positive-clicked-event-name="btnModalPositiveClicked">
+                        <assign-project-view id="modalForm"></assign-project-view>
+                    </px-modal> -->
+
+                    <iron-collapse opened id="collapseProjectsDetails" >
+                  <!--   <label>hiii</label> -->
+                         <assign-project-view id="collapsibleForm" is-collapsible></assign-project-view>
+                    </iron-collapse>
+                    <div id="errorAddProjectMsg" style="display: none;">
+						<span id="msgAddProjecError">Project assignment cannot be duplicated. Please select different project assignment.</span>
+					</div>
+
+<!--                   <template is="dom-if" id="proj_table" >  -->
+                    <px-data-table  id="projecttable" style="display: none" table-data='[[projectList]]'  striped="true">
+                        <px-data-table-column class="header-red" type="html" label="Delete" name="deleteAction"></px-data-table-column>
+                        <px-data-table-column label="Name" name="projectAssignment" sortable="true" filterable="true"></px-data-table-column>
+                        <px-data-table-column label="NTI" name="nti_Allocation" sortable="true" filterable="true"></px-data-table-column>
+                        <px-data-table-column label="NPI" name="npi_Allocation" sortable="true" filterable="true"></px-data-table-column>
+                        <px-data-table-column label="RTS" name="rts_Allocation" sortable="true" filterable="true"></px-data-table-column>
+                        <px-data-table-column label="REQ" name="req_Allocation" sortable="true" filterable="true"></px-data-table-column>
+                        <px-data-table-column label="Type" name="project_Type" sortable="true" filterable="true"></px-data-table-column>
+                    </px-data-table>
+                    <!-- </template> -->
+                </px-card>
+            </form>
+
+           <!--  <div style="display:block;" class="input-45 text-center">
+                <br/>
+                <paper-button raised class="custom indigo" style="margin-top:0%" onclick="_submitResource(event)"><iron-icon icon="icons:save"></iron-icon> &nbsp; Saveddd
+                </paper-button>
+            </div> -->
+        </px-card>
+
+        <px-modal id="modalUpdateProjectSuccess" modalId="modalUpdateProjectSuccess" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <b id="msgUpdateProjectSuccess">Project created successfully.</b>
+            </p>
+        </px-modal>
+        <px-modal id="modalUpdateProjectError" modalId="modalUpdateProjectError" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <b id="msgUpdateProjectError">Failed to add project.</b>
+            </p>
+        </px-modal>
+        <px-modal id="modalDeleteProjectWarning" modalId="modalDeleteProjectWarning" btn-modal-negative="No" btn-modal-positive="Yes" modal-heading="">
+            <p>
+                <span id="msgDeleteWarning">Are you sure, you want to delete <span id="deleteCount">this Project</span> ?</span>
+            </p>
+        </px-modal>
+        <px-modal id="modalProjectDeleteSuccess" modalId="modalProjectDeleteSuccess" btn-modal-positive="Close" modal-heading="">
+            <p>
+                <span id="msgProjectDeleteSuccess">Project added successfully.</span>
+            </p>
+        </px-modal>
+        <px-modal id="modalProjectDeleteError" modalId="modalProjectDeleteError" btn-modal-positive="Close" modal-heading="Error">
+            <p>
+                <span id="msgProjectDeleteError">Failed to add project.</span>
+            </p>
+        </px-modal>
+    </template>
+    <script>
+    var dataTable = null;
+    var tableElement = null;
+    Polymer({
+        is: 'resource-view',
+        properties: {
+            cellData: {
+                type: Object,
+                value:{},
+                notify: true,
+            },
+            resourceData: {
+                type: Object,
+                value:{},
+                notify: true,
+                //computed: 'getFormattedResourceData(_rsmResponse)'
+            },
+            resourceInfo: {
+                type: Object,
+                notify: true,
+                value: this.resourceData
+            },
+            showProjTable:{
+                type:Object,
+                value:false,
+                notify:true
+            },
+            projectList: {
+                type: Object,
+                value: [],
+                reflectToAttribute : false
+                // computed: 'getProjectDetails(_rsmResponse,this.resourceData)'
+            },
+            localProjectList: {
+                type: Object,
+                value: []
+                    // computed: 'getProjectDetails(_rsmResponse)'
+            },
+            action: {
+                type: String,
+                notify: true,
+                value: 'addResource'
+            },
+            loading: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            showTable: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            fromEdit :{
+                type: String,
+                notify: true,
+                value: ''
+            },
+            userid: {
+                type: Object
+            },        
+            routeData: {
+                type: Object,
+                value: function() {
+                    // Default page.
+                    return {
+                        page: 'view1'
+                    };
+                }
+            },
+        },
+        listeners: {
+            'iron-form-submit': '_handleSubmit'
+        },
+        handleTap: function() {
+            alert('Ow!');
+        },
+        collapseResourceDetails : function(){
+            document.querySelector("#collapseResource").toggle();
+        },
+        collapseProfileDetails : function(){
+            document.querySelector("#collapseProfile").toggle();
+        },
+        collapseBGDetails : function(){
+            document.querySelector("#collapseBG").toggle();
+        },
+        assignProjectCollapseToggle: function() {
+            document.querySelector("#collapseProjectsDetails").toggle();
+        },
+        /* assignProjectModalToggle: function() {
+            document.getElementById('assign_project_modal_form').modalButtonClicked();
+            document.querySelector("#modalForm #projectForm").reset();
+        },*/
+        addRow: function(projectObj) {
+            this.localProjectList = this.$.projecttable.tableData;
+            //console.log(" this.localProjectList ",  this.localProjectList, projectObj);
+            if(this.localProjectList==undefined){
+               this.localProjectList =[];
+            }
+			var len = (this.localProjectList).length;
+			var loc_ids = [];
+			for(var i = 0; i<= len -1 ;i++){			
+			console.log('this.localProjectList[i].id',this.localProjectList[i].id);
+			var id = this.localProjectList[i].id ;
+				loc_ids.push(id);			
+			}
+			console.log('a',loc_ids);
+			
+			
+			 var exist = loc_ids.indexOf(projectObj.id);
+			console.log('exist--',exist);
+			if(exist == -1){
+			  this.localProjectList.push(projectObj);
+			  console.log(" this.localProjectList push projobj ",  this.localProjectList);
+			  this.$.projecttable.tableData = [];
+			  this.$.projecttable.tableData = this.localProjectList;
+			  this.showTable = true;
+			  document.getElementById("projecttable").style.display = 'block';
+			  var assignProjectForm = document.querySelector("#collapsibleForm #projectForm").reset();
+			}else{
+			  console.log('duplicate');
+			  document.getElementById('errorAddProjectMsg').style.display = 'block';
+			  setTimeout(function(){ 
+			  document.getElementById('errorAddProjectMsg').style.display = 'none'; 
+			  }, 8000);
+			}
+            //add new obj to existing table data 
+            /*this.localProjectList.push(projectObj);
+            console.log(" this.localProjectList ",  this.localProjectList);
+            this.$.projecttable.tableData = [];
+            this.$.projecttable.tableData = this.localProjectList;
+            this.showTable = true;
+            document.getElementById("projecttable").style.display = 'block';
+
+            var assignProjectForm = document.querySelector("#collapsibleForm #projectForm").reset();*/
+            //console.log("projectForm ", this.projectList);
+            // document.querySelector("#collapsibleForm #projectForm").reset();
+            // this.projectList.push({"project_id":10,"projectAssignment":"j","nti_Allocation":1,"npi_Allocation":1,"rts_Allocation":1,"req_Allocation":1,"deleteAction":"<paper-button class=\"custom indigo\" id=\"\" on-tap=\"onDelete\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>","project_Type":"hj"});
+        },
+        deleteProjectRowClicked: function(project_id) {
+            // alert();
+            //debugger;
+            this.localProjectList = this.localProjectList.filter(function(el) {
+                return el.id != project_id;
+            });
+            this.$.projecttable.tableData = [];
+            this.$.projecttable.tableData = this.localProjectList;
+        },
+        resetResourceInfo: function() {
+            this.resourceInfo = {
+                "action": null,
+                "sso_id": null,
+                "name": null,
+                "band": null,
+                "function": null,
+                "role": null,
+                "title": null,
+                "location": null,
+                "manager": null,
+                "projectDetails": [],
+                "qualification": null,
+                "ge_Experience": null,
+                "total_Experience": null,
+                "key_Skills": null
+            };
+        },
+        _handleSubmit: function(e) {
+            
+            var assignProjectForm = document.querySelector("#collapsibleForm #projectForm");
+            assignProjectForm.querySelector("#nti_Allocation").required =true;
+            assignProjectForm.querySelector("#npi_Allocation").required =true;
+            assignProjectForm.querySelector("#rts_Allocation").required =true;
+            assignProjectForm.querySelector("#req_Allocation").required =true;
+            assignProjectForm.querySelector("#project_Type").required =true;
+            assignProjectForm.querySelector("#id").required =true;
+            
+            if (document.querySelector("#collapsibleForm #projectForm").validate()) {
+                if(e.target.parentElement.id == 'collapsibleForm'){
+                    console.log("SUBMIT CALLED");
+                    var lodalProjectForm = document.querySelector("#collapsibleForm #projectForm");
+                    var projectObj = {};
+                    projectObj.id = parseInt(lodalProjectForm.querySelector('#id').value);
+                   projectObj.project_Type = lodalProjectForm.querySelector('#project_Type').value;
+                    projectObj.projectAssignment = lodalProjectForm.querySelector('#projectAssignment').value;
+                    projectObj.npi_Allocation = lodalProjectForm.querySelector('#npi_Allocation').value;
+                    projectObj.nti_Allocation = lodalProjectForm.querySelector('#nti_Allocation').value;
+                    projectObj.rts_Allocation = lodalProjectForm.querySelector('#rts_Allocation').value;
+                    projectObj.req_Allocation = lodalProjectForm.querySelector('#req_Allocation').value;
+                    projectObj.deleteAction = "<paper-button class=\"deleteRowBtn\" onClick=\"deleteProjectRowClicked(" + projectObj.id + ")\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>" ; 
+
+                        
+                    // console.log(document.querySelector("assign-project-view form").serialize());
+                    document.querySelector("resource-view").addRow(projectObj);
+                    document.querySelector("resource-view").assignProjectCollapseToggle();
+                }
+            }else{
+                console.log("Form not validated")
+            }
+            // this.addRow();
+            // this.submit();
+        },
+        ready: function() {
+		
+			
+            //this.getUser();
+            // this.$$('#projectDetails').addEventListener('on-tap', function(e) {
+            //     // debugger;
+            //    alert("Click", e);
+            // });
+            this.$$('#modalDeleteProjectWarning').addEventListener('btnModalPositiveClicked', function(e) {
+                // debugger;
+                document.querySelector('resource-view').deleteProjectById(document.querySelector('resource-view').deleteProjectId);
+            });
+            /*if(this.localProjectList == undefined || this.localProjectList == [] ){
+                this.showTable =false;
+                alert("No table");
+            }*/
+            this.$$('#modalProjectDeleteSuccess').addEventListener('btnModalPositiveClicked', function(e) {
+                document.querySelector('#projecttable').tableData = []
+                document.querySelector('resource-view').getProjects();
+            });
+            console.log("ready", this.projectList);
+            /*this.$$('#assign_project_modal_form').modalActionButtonClicked = function(event) {
+                // alert();
+                console.log(event.target.id);
+                if (event.target.id === 'btnModalPositive') {
+
+                    if (document.querySelector("#modalForm #projectForm").validate()) {
+                        document.getElementById('assign_project_modal_form').modalButtonClicked();
+                        var lodalProjectForm = document.querySelector("#modalForm #projectForm");
+                        var projectObj = {};
+                        projectObj.id = lodalProjectForm.querySelector('#project_id').value;
+                        projectObj.project_Type = lodalProjectForm.querySelector('#project_Type').value;
+                        projectObj.projectAssignment = lodalProjectForm.querySelector('#projectAssignment').value;
+                        projectObj.npi_Allocation = lodalProjectForm.querySelector('#npi_Allocation').value;
+                        projectObj.nti_Allocation = lodalProjectForm.querySelector('#nti_Allocation').value;
+                        projectObj.rts_Allocation = lodalProjectForm.querySelector('#rts_Allocation').value;
+                        projectObj.req_Allocation = lodalProjectForm.querySelector('#req_Allocation').value;
+                        // console.log(document.querySelector("assign-project-view form").serialize());
+                        document.querySelector("resource-view").addRow(projectObj);
+                    }else{
+                        event.preventDefault();
+                    }
+
+                } else if (event.target.id === 'btnModalNegative') {
+                    // debugger;
+                    document.querySelector("#modalForm #projectForm").reset();
+                    document.getElementById('assign_project_modal_form').modalButtonClicked();
+                }
+            };*/
+        },
+		updateStyle : function() {
+		 
+		  
+		  
+		  
+		  
+		  		if(this.$$('#p_N_L ').value != ''){
+				  this.$$('#error_p_N_L').style.display = "none";
+				  this.$$('#p_N_L ').style.borderBottom = "1px solid gray";	
+					
+					}
+				if(this.$$("#band").value != ''){
+				      this.$$("#band").style.borderBottom  = "1px solid gray";
+					  this.$$("#error_band").style.display = "none";
+					}
+					
+					if(this.$$("#function").value != ''){
+					this.$$("#function").style.borderBottom  = "1px solid gray";
+					this.$$("#error_function").style.display = "none";
+					}
+					if(this.$$("#type").value != ''){
+					this.$$(" #type").style.borderBottom  = "1px solid gray";
+					this.$$(" #error_type").style.display = "none";
+					}
+					if(this.$$("#role").value != ''){
+					this.$$("#role").style.borderBottom  = "1px solid gray";
+					this.$$("#error_role").style.display = "none";
+					}
+		  
+		},
+        setValues: function() {
+            
+            this.$$('#sso_id').disabled = true;
+            document.querySelector("#collapseProjectsDetails").opened=false;
+
+            console.log("Resource data ", this.resourceData, " projectList -", document.querySelector('rsm-view').editResourceInfo.projectDetails );
+
+            this.fromEdit = "fromEdit";
+            
+            console.log("fromEdit - ", this.fromEdit);
+
+            var projObj =document.querySelector('rsm-view').editResourceInfo.projectDetails.projectDetails;
+
+            console.log("projObj - ", projObj);
+            
+            if(projObj.length > 0){
+                this.$$("#projecttable").style.display = 'block';         
+            }else{
+                this.$$("#projecttable").style.display = 'none';         
+            }
+
+            for (var i = 0; i < projObj.length; i++) {
+
+                projObj[i].deleteAction = "<paper-button class=\"deleteRowBtn\" onClick=\"deleteProjectRowClicked(" + projObj[i].id + ")\"><iron-icon icon=\"icons:delete\"></iron-icon></paper-button>" ;
+            }
+            
+            document.querySelector('resource-view #projecttable').tableData = projObj ;
+            this.localProjectList = projObj;
+           
+            this.$$('#sso_id').value = this.resourceData.sso_id;
+
+
+            this.$$('#name').value = this.resourceData.name;
+            this.$$('#band').value = this.resourceData.band;
+
+            this.$$('#manager').value = this.resourceData.manager;
+            this.$$('#p_N_L').value = this.resourceData.p_N_L;
+            this.$$('#role').value = this.resourceData.role;
+            this.$$('#type').value = this.resourceData.type;
+
+            this.$$('#function').value = this.resourceData.function;
+            this.$$('#title').value = this.resourceData.title;
+            this.$$('#location').value = this.resourceData.location;
+            this.$$('#qualification').value = this.resourceData.qualification;
+            this.$$('#ge_Experience').value = this.resourceData.ge_Experience;
+            this.$$('#total_Experience').value = this.resourceData.total_Experience;
+            this.$$('#key_Skills').value = this.resourceData.key_Skills;
+            this.loading = false;
+            
+        },
+        editUser: function() {
+            console.log("Edit the User........");
+        },
+        getFormattedResourceData: function(_rsmResponse) {
+            if (_rsmResponse) {
+                this.loading = false;
+                this.showTable = true;
+                 document.getElementById("projecttable").style.display = 'block';
+                var formData = JSON.stringify(_rsmResponse);
+                return JSON.parse(formData);
+            }
+        },
+
+        getProjectDetails: function(_rsmResponse,resourceData) {
+            debugger;
+            if(true && resourceData.projectDetails){
+                var projObj = resourceData.projectDetails;
+                for (var i = 0; i < projObj.length; i++) {
+                    projObj[i].deleteAction = '<paper-button class="deleteRowBtn" onClick="deleteProjectRowClicked(' + projObj[i].id + ')"><iron-icon icon="icons:delete"></iron-icon></paper-button>';
+
+                }
+                // this.localProjectList = projObj;
+                return projObj;
+            }else if (_rsmResponse.projectDetails) {
+                for (var i = 0; i < _rsmResponse.projectDetails.length; i++) {
+                    _rsmResponse.projectDetails[i].deleteAction = '<paper-button class="deleteRowBtn" onClick="deleteProjectRowClicked(' + _rsmResponse.projectDetails[i].id + ')"><iron-icon icon="icons:delete"></iron-icon></paper-button>';
+
+                }
+                this.localProjectList = _rsmResponse.projectDetails;
+                return _rsmResponse.projectDetails;
+            }
+        },
+
+        getUser: function() {
+            this.loading = true;
+            // var sso = this.$.userId.value;
+            var sso = 242;
+            this.$.rsmAjax.url = "https://jpa-rsm-1.run.aws-usw02-pr.ice.predix.io/resources/" + sso;
+            this.$.rsmAjax.generateRequest();
+        },
+        submit: function() {
+            /*console.log("inside submit of resource-view");
+            var form = event;
+            var jsonData = {};
+
+            // console.log("Form ", form);
+            //  debugger;
+            var general = document.querySelector("#resourceForm");
+            var details = general;
+            //  console.log("details ", details);
+            for (var j = 0; j < details.length; j++) {
+                var pInput = details[j];
+                //  console.log('pInput', pInput);
+                var inputValue = pInput.value;
+                var label = pInput.name;
+                // debugger
+                //  label = label.charAt(0).toLowerCase() + label.slice(1);
+                jsonData[label] = inputValue;
+                // console.log('json', jsonData);
+            }
+
+            jsonData.projectDetails = [];
+            //  debugger;
+
+            var projects = document.querySelector("#projectDetails div");
+            console.log("proje", projects);
+            var projectData = {};
+            var inputValue, pInput, label;
+            var pDetails = projects.querySelectorAll("paper-input");
+            console.log("pDetails", pDetails);
+            // debugger;
+
+            for (var i = 0; i < pDetails.length; i++) {
+                //  for (var j = 0; j < pDetails.length; j++) {
+                pInput = pDetails[i];
+                console.log("pInput", pInput)
+                inputValue = pInput.querySelector("input").value;
+                console.log("inputValue", inputValue);
+                var label = pInput.name
+                    /*label = pInput.querySelector("label").innerHTML;
+                     console.log("label ", label);
+                    label = label.charAt(0).toLowerCase() + label.slice(1);
+                     console.log("label2 ", label);*/
+               /* projectData[label] = inputValue;
+                console.log("projectData[label] ", projectData[label]);
+            }
+            jsonData.projectDetails.push(projectData);
+            // }
+
+            console.log("jsondata ", jsonData);
+            // debugger;
+            var sso = jsonData.sso_id;
+            this.$.CreateResourceAjax.body = jsonData;
+            this.$.CreateResourceAjax.url = "https://jpa-rsm-1.run.aws-usw02-pr.ice.predix.io/resources/";
+            this.$.CreateResourceAjax.generateRequest();*/
+        },
+        showUser: function(request) {
+            //this.setValues();
+            console.log("XXXXXXXXXXXX");
+            // this.$.projecttable.tableData.push(request.detail.response.projectDetails[0]);
+        },
+        _handleCreateResourceAjaxResponse: function(request) {
+	
+            this.loading = false;
+            console.log(request.detail.response);
+            document.getElementById('msgCreateResourceSuccess').innerHTML = "Resource added successfully.";
+            document.querySelector('#resourceForm').reset();
+            document.querySelector('#projectForm').reset();
+
+            document.getElementById('modalCreateResourceSuccess').modalButtonClicked();
+            // debugger;
+            if (document.querySelector("resource-view")) {
+                document.querySelector("resource-view #mytable").tableData = [];
+                document.querySelector("resource-view").attributesReady();
+            }
+
+            if (document.querySelector('resource-view')) {
+                document.querySelector('resource-view #projecttable').tableData = [];
+                document.querySelector('resource-view').getProjects();
+            }
+        },
+        _handleCreateResourceAjaxError: function(err) {
+            this.loading = false;
+            document.getElementById('msgCreateResourceError').innerHTML = "Error while creating resource.";
+            document.getElementById('modalCreateResourceError').modalButtonClicked();
+            console.log("Error", err.detail);
+        },
+    });
+
+    function deleteProjectRowClicked(project_id) {
+        console.log("projObj -id ", project_id);
+        document.querySelector("resource-view").deleteProjectRowClicked(project_id);
+    }
+
+    /*function _submitResource(event) {
+        document.getElementById('resourceForm').submit();
+        // console.log(document.getElementById('resourceForm'));
+        // console.log(Polymer.dom(event).localTarget.parentElement.parentElement.querySelector("#resourceForm"));
+        // Polymer.dom(event).localTarget.parentElement.parentElement.querySelector("#resourceForm").submit();
+    }*/
+
+
+    Array.prototype.removeValue = function(name, value) {
+        var array = $.map(this, function(v, i) {
+            return v[name] === value ? null : v;
+        });
+        this.length = 0; //clear original array
+        this.push.apply(this, array); //push all elements except the one we want to delete
+    }
+    </script>
+</dom-module>

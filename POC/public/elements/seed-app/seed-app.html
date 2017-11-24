@@ -17,7 +17,7 @@
 <link rel="import" href="../seed-footer/seed-footer.html">
 
 <dom-module id="seed-app">
-  <template>
+  <template >
 
     <!-- apply imported seed app style module -->
     <style include="seed-app-styles"></style>
@@ -38,11 +38,12 @@
       <div class="content-wrapper">
         <px-app-nav
           class="navbar"
+          style="background-color: #c18a09"
           nav-items="[[navItems]]"
           path-prefix="[[pathPrefix]]">
         </px-app-nav>
 
-        <main class="u-pt-- u-pr-- u-pl--" role="main">
+        <main class="u-pt-- u-pr-- u-pl--" role="main" style="background-color: #c18a09">
 
           <!-- app-location captures url and assigns _route value -->
           <app-location
@@ -185,7 +186,7 @@
               "path": "/winddata",
               "icon": "fa-line-chart"
             },{
-              "label": "PX Content Brower",
+              "label": "PX Content Browser",
               "path": "/px-content-brower-demo",
               "icon": "fa-file"
             }

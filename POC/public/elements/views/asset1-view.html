@@ -8,6 +8,16 @@
 <link rel="import" href="../../bower_components/px-dropdown/px-dropdown.html"/>
 <link rel="import" href="../../bower_components/px-alert-label/px-alert-label.html"/>
 <link rel="import" href="../../bower_components/px-data-table/px-data-table.html"/>
+<link rel="import" href="../../bower_components/px-accordion/px-accordion.html"/>
+<link rel="import" href="../../bower_components/px-alert-label/px-alert-label.html"/>
+<link rel="import" href="../../bower_components/px-alert-message/px-alert-message.html"/>
+<link rel="import" href="../../bower_components/Px-Calendar-Picker/Px-Calendar-Picker.html"/>
+<link rel="import" href="../../bower_components/Px-Datetime-Picker/Px-Datetime-Picker.html"/>
+<link rel="import" href="../../bower_components/px-datetime-field/px-datetime-field.html"/>
+<link rel="import" href="../../bower_components/px-file-upload/px-file-upload.html"/>
+<link rel="import" href="../../bower_components/px-kpi/px-kpi.html"/>
+<link rel="import" href="../../bower_components/px-login/px-login.html"/>
+<link rel="import" href="../../bower_components/px-modal/px-modal.html"/>
 
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -27,7 +37,7 @@
   <template>
     
     <style include="asset1-view-styles"></style>
-    <px-card header-text="Assets1" icon="fa-sitemap">
+    <px-card header-text="Predix Components" icon="fa-sitemap">
     
     <form >
       <fieldset class="form-field" style="max-width:100%;">
@@ -35,10 +45,99 @@
        <div class="layout layout--huge layout--center">
 
           <div class="layout__item u-1/1" style="margin-top: 15px;">
-          <h2>Asset1 Info comes here.</h2>
+          <h4>px-accordion</h4>
+          <px-accordion header-value="Header Caption" show-action></px-accordion>
+
+          <h4>px-alert-label</h4>
+           <px-alert-label
+            label="Label text"
+            type="important">
+           </px-alert-label>
+
+           <h4>px-alert-message</h4>
+            <px-alert-message
+                type="important"
+                message-title="Heads up!"
+                message="This definitely needs our attention."
+                action="https://www.predix.io/"
+                auto-dismiss="5000"
+                language="en">
+            </px-alert-message>
+
+            <h4>px-calendar-picker</h4>
+			      <px-calendar-picker display-mode="day"></px-calendar-picker>
+
+            <h4>px-datetime-picker</h4>
+            <px-datetime-picker
+              date-format="YYYY/MM/DD"
+              time-format="HH:mm:ss"
+              show-time-zone="dropdown"
+              date-time="2016-02-05T05:30:00.000Z"
+              show-buttons>
+            </px-datetime-picker>
+
+              <h4>px-datetime-field</h4>
+            <px-datetime-field
+              date-format="YYYY/MM/DD"
+              time-format="HH:mm:ss"
+              time-zone="UTC"
+              show-time-zone="dropdown"
+              date-time="2017-11-23T07:55:58.380Z"
+              min='"2016-11-23T07:55:58.380Z"'
+              max='"2018-11-23T07:55:58.381Z"'>
+              </px-datetime-field>
+
+              <h4>px-dropdown</h4>
+              <px-dropdown
+                items='[{"key":"1","val":"iPhone"},{"key":"2","val":"Android"},{"key":"3","val":"Blackberry"},{"key":"4","val":"Windows Phone"},{"key":"5","val":"Flip Phone","disabled":true}]'
+                sort-mode="key"
+                button-style="default"
+                display-value="Select"
+                disable-clear>
+                </px-dropdown>
+
+                <h4>px-file-upload</h4>
+                 <px-file-upload
+                  message="Drag and drop files here, or click the button below.">
+                  </px-file-upload>
+
+                  <h4>px-kpi</h4>
+                  <px-kpi
+                    spark-type="line"
+                    title="Orders"
+                    value="30M"
+                    uom="USD"
+                    status-icon="px-nav:up"
+                    status-color="green"
+                    status-label="12%"
+                    spark-data='[{"x":1397102460000,"y":0.56},{"x":1397139660000,"y":0.4},{"x":1397177400000,"y":0.43},{"x":1397228040000,"y":0.33},{"x":1397248260000,"y":0.47},{"x":1397291280000,"y":0.41},{"x":1397318100000,"y":0.26},{"x":1397342100000,"y":0.42},{"x":1397390820000,"y":0.27},{"x":1397408100000,"y":0.38},{"x":1397458800000,"y":0.36},{"x":1397522940000,"y":0.32}]'>
+                    </px-kpi>
+
+
+                     <h4>px-login</h4>
+                  <px-login
+                  user-name="Sample User"
+                  popover-location="bottom"
+                  menu-items='[{"url":"#settings","label":"Settings"},{"url":"#account","label":"My Account"}]'>
+                  </px-login>
+
+                <h4>px-modal</h4>
+                  <px-modal
+                      btn-modal-positive="Submit"
+                      btn-modal-negative="Cancel"
+                      modal-heading="Magna Adipiscing">
+                      <button
+                      class='btn btn--primary modal-trigger'>Open Modal
+                      </button>
+                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                      </p>
+                      </px-modal>
+
+
+                     
+            
+
          </div>
-
-
 
       </div>
       </fieldset>
@@ -48,7 +147,9 @@
   <script>
     Polymer({
       is: 'asset1-view',
-      properties: {},
+      properties: {
+  
+      },
       ready: function() {
         console.log('asset1-view ready()')
       }
